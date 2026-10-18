@@ -171,3 +171,124 @@ export function parseAiSections(text: string): { title: string | null; body: str
   }
   return out
 }
+
+/* ==================== 后台管理 ==================== */
+
+const ADMIN_TOKEN_KEY = 'qq_admin_token'
+let adminToken = localStorage.getItem(ADMIN_TOKEN_KEY) ?? ''
+
+export function getAdminToken(): string {
+  return adminToken
+}
+
+export function setAdminToken(token: string): void {
+  adminToken = token
+  if (token) localStorage.setItem(ADMIN_TOKEN_KEY, token)
+  else localStorage.removeItem(ADMIN_TOKEN_KEY)
+}
+
+export interface AdminOverview {
+  drawings: number
+  readings: number
+  messages: number
+  users: number
+  drawings_today: number
+  ai: { configured: boolean; model: string; api_base: string }
+}
+
+export interface AdminDrawing {
+  drawing_id: number
+  sign_no: number
+  title: string
+  category: string | null
+  question: string | null
+  created_at: string | null
+  reading_id: number | null
+  reading_model: string | null
+  excerpt: string | null
+  messages: number
+}
+
+export interface AdminUser {
+  id: number
+  openid: string | null
+  nickname: string | null
+  created_at: string | null
+  drawings: number
+}
+
+export interface AdminSettings {
+  llm_api_base: string
+  llm_model: string
+  llm_temperature: number
+  llm_max_tokens: number
+  llm_api_key_set: boolean
+  llm_api_key_masked: string
+}
+
+async function adminRequest<T>(url: string, init?: RequestInit): Promise<T> {
+  const resp = await fetch(BASE + url, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${adminToken}`,
+      ...(init?.headers ?? {}),
+    },
+  })
+  if (!resp.ok) {
+    let detail = `请求失败 (HTTP ${resp.status})`
+    try {
+      const data = await resp.json()
+      if (data?.detail) detail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail)
+    } catch {
+      /* 忽略 */
+    }
+    if (resp.status === 401 && !url.includes('/login')) {
+      setAdminToken('')
+      throw new Error('登录已过期,请重新登录')
+    }
+    throw new Error(detail)
+  }
+  return resp.json() as Promise<T>
+}
+
+export async function adminLogin(username: string, password: string): Promise<void> {
+  const data = await request<{ token: string }>('/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+  setAdminToken(data.token)
+}
+
+export function adminOverview(): Promise<AdminOverview> {
+  return adminRequest('/admin/overview')
+}
+
+export function adminDrawings(limit = 20, offset = 0): Promise<{ total: number; items: AdminDrawing[] }> {
+  return adminRequest(`/admin/drawings?limit=${limit}&offset=${offset}`)
+}
+
+export function adminDeleteDrawing(id: number): Promise<{ ok: boolean }> {
+  return adminRequest(`/admin/drawings/${id}`, { method: 'DELETE' })
+}
+
+export function adminUsers(): Promise<{ items: AdminUser[] }> {
+  return adminRequest('/admin/users')
+}
+
+export function adminDeleteUser(id: number): Promise<{ ok: boolean }> {
+  return adminRequest(`/admin/users/${id}`, { method: 'DELETE' })
+}
+
+export function adminGetSettings(): Promise<AdminSettings> {
+  return adminRequest('/admin/settings')
+}
+
+export function adminUpdateSettings(values: Partial<Record<string, string | number>>): Promise<AdminSettings> {
+  return adminRequest('/admin/settings', { method: 'PUT', body: JSON.stringify(values) })
+}
+
+export function adminTestLLM(): Promise<{ ok: boolean; model: string; latency_ms: number; reply: string }> {
+  return adminRequest('/admin/settings/test', { method: 'POST' })
+}

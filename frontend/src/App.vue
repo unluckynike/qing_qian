@@ -15,12 +15,17 @@
         <router-link to="/">求 签</router-link>
         <router-link to="/library">签文库</router-link>
         <router-link to="/history">签事记</router-link>
+        <router-link to="/admin">管理</router-link>
       </nav>
     </div>
   </header>
 
-  <main class="shell" style="padding: 30px 0 44px">
-    <router-view />
+  <main class="shell" style="padding: 24px 0 40px">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
   </main>
 
   <footer class="footer">

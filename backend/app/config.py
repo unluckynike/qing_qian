@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     llm_max_tokens: int = 1200
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
 
+    # 后台管理(单管理员账号;ADMIN_PASSWORD 为空则后台接口返回 503)
+    admin_username: str = "admin"
+    admin_password: str = ""
+    admin_token_hours: int = 12
+
     model_config = SettingsConfigDict(
         env_file=str(BACKEND_DIR / ".env"),
         env_file_encoding="utf-8",

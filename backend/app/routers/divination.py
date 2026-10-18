@@ -13,6 +13,7 @@ from ..db import SessionLocal, db_ready
 from ..models import DrawRequest, InterpretRequest
 from ..orm import Drawing, Message, Reading
 from ..services import llm
+from ..services.ai_config import get_ai_config
 from ..services.prompt import PROMPT_VERSION, build_messages
 from ..services.signstore import store
 
@@ -123,10 +124,11 @@ def interpret(body: InterpretRequest) -> StreamingResponse:
             return
 
         content = "".join(chunks)
-        done: dict[str, Any] = {"done": True, "model": settings.llm_model}
+        model_name = get_ai_config()["llm_model"]
+        done: dict[str, Any] = {"done": True, "model": model_name}
         if db_ready():
             try:
-                done.update(_persist(body, settings.llm_model, content))
+                done.update(_persist(body, model_name, content))
             except Exception as exc:  # noqa: BLE001 落库失败不影响已生成的解读
                 logger.warning("解签落库失败: %s", exc)
         yield _sse(done)

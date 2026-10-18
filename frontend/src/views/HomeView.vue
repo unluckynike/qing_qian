@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { gsap } from 'gsap'
 import { drawSign } from '../api'
 
 const router = useRouter()
@@ -9,6 +10,18 @@ const category = ref('')
 const rolling = ref(false)
 const error = ref('')
 const categories = ['事业', '姻缘', '财运', '健康', '其他']
+
+const stageEl = ref<HTMLElement | null>(null)
+let ctx: gsap.Context | undefined
+
+onMounted(() => {
+  if (!stageEl.value || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+  ctx = gsap.context(() => {
+    // 签筒轻微悬浮,营造呼吸感
+    gsap.to('.tube', { y: -7, duration: 1.9, yoyo: true, repeat: -1, ease: 'sine.inOut' })
+  }, stageEl.value)
+})
+onUnmounted(() => ctx?.revert())
 
 async function startDraw() {
   if (rolling.value) return
@@ -70,7 +83,7 @@ async function startDraw() {
     </div>
 
     <div class="panel reveal d2" style="text-align: center; padding-top: 34px">
-      <div class="draw-stage" :class="{ rolling }">
+      <div ref="stageEl" class="draw-stage" :class="{ rolling }">
         <div class="tube">
           <div class="tube-sticks">
             <i v-for="n in 7" :key="n" class="stick" :style="{ '--i': n }"></i>

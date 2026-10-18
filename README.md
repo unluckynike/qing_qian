@@ -12,7 +12,7 @@
 | 层 | 选型 |
 |---|---|
 | 后端 | Python 3.10 · FastAPI · SQLAlchemy 2.0(psycopg2)· OpenAI 兼容 SDK |
-| 前端 | Vue 3 · Vite · TypeScript(道观古风 UI,竖排签牌) |
+| 前端 | Vue 3 · Vite · TypeScript · GSAP(道观古风 UI,微动画) |
 | 数据库 | PostgreSQL 16(Docker Compose,启动自动建表) |
 | 签文库 | `backend/data/lvzu_signs.json`(100 签,随仓库版本管理) |
 
@@ -67,6 +67,8 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | `LLM_API_KEY` | **必填才能用 AI 解签**;不填时抽签与静态签文照常可用 | 空 |
 | `LLM_MODEL` | 模型名 | `glm-4-flash` |
 | `LLM_TEMPERATURE` / `LLM_MAX_TOKENS` | 解签参数 | 0.8 / 1200 |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD` | **后台管理账号**(密码为空时后台接口不可用) | admin / 空 |
+| `ADMIN_TOKEN_HOURS` | 后台登录有效期(小时) | 12 |
 
 **优雅降级**:未配置 `LLM_API_KEY` 时,`/api/interpret` 返回 503 并提示配置方式;前端隐藏入口并展示提示条,签文阅读不受影响。数据库不可用时同样降级(抽签不落库)。
 
@@ -80,6 +82,21 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | POST | `/api/draw` | 安全随机抽签 → `{drawing_id, sign}` |
 | POST | `/api/interpret` | AI 解签,SSE 流式;支持追问(带 `reading_id` + `history`) |
 | GET | `/api/history` | 最近抽签与解签记录 |
+| POST | `/api/admin/login` | 后台登录(换取令牌) |
+| GET/PUT/POST/DELETE | `/api/admin/*` | 后台管理:概览 / 签文记录 / 用户 / AI 配置(需 Bearer 令牌) |
+
+## 后台管理
+
+访问 `/#/admin`,账号取自 `backend/.env` 的 `ADMIN_USERNAME` / `ADMIN_PASSWORD`(示例默认 `admin` / `qingqian-admin`,**公开部署前务必修改**)。
+
+| 模块 | 功能 |
+|---|---|
+| 概览 | 抽签 / 解签 / 追问 / 用户计数、今日抽签、AI 配置状态 |
+| 签文记录 | 最近抽签与解签记录(分页),可删除(级联删除对应解签与追问) |
+| 用户管理 | 用户列表与删除(历史抽签记录保留) |
+| AI 配置 | base_url / 模型 / 温度 / 输出上限 / API Key,保存即生效,支持连通性测试;密钥仅存本机数据库且脱敏展示 |
+
+AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(或删除行)即回退到 .env。
 
 SSE 事件:`data: {"delta": "…"}` 逐段 → `data: {"done": true, "reading_id": …}` → `data: [DONE]`。
 解签落库:首答写 `readings`,追问写 `messages`(每次调用记录 `model` 与 `prompt_version`)。

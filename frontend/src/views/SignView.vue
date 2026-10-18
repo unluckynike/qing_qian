@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { gsap } from 'gsap'
 import {
   fetchSign,
   parseAiSections,
@@ -11,6 +12,9 @@ import {
 
 const route = useRoute()
 const router = useRouter()
+
+const pageEl = ref<HTMLElement | null>(null)
+let ctx: gsap.Context | undefined
 
 const sign = ref<SignDetail | null>(null)
 const loadError = ref('')
@@ -25,16 +29,45 @@ const drawingId = computed(() => {
   return Number.isFinite(v) && v > 0 ? v : undefined
 })
 
+function reducedMotion(): boolean {
+  return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/** 入场微动画:签牌上浮 → 签诗逐行 → 印章落章 → 面板错峰。 */
+function animateIn() {
+  ctx?.revert()
+  if (!pageEl.value || reducedMotion()) return
+  ctx = gsap.context(() => {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+    tl.from('.sign-plaque', { autoAlpha: 0, y: 22, duration: 0.55 })
+      .from('.poem-line', { autoAlpha: 0, x: -14, duration: 0.45, stagger: 0.12 }, '-=0.22')
+      .from(
+        '.poem-seal',
+        { autoAlpha: 0, scale: 2, rotate: -30, duration: 0.5, ease: 'back.out(2)' },
+        '-=0.18',
+      )
+      .from(
+        '.sign-page .grid-2 > .panel, .sign-page > .panel',
+        { autoAlpha: 0, y: 16, duration: 0.5, stagger: 0.07 },
+        '-=0.28',
+      )
+      .from('.sign-page .row-between', { autoAlpha: 0, duration: 0.4 }, '-=0.12')
+  }, pageEl.value)
+}
+
 async function load() {
   sign.value = null
   loadError.value = ''
   try {
     sign.value = await fetchSign(no.value)
+    await nextTick()
+    animateIn()
   } catch (e) {
     loadError.value = e instanceof Error ? e.message : String(e)
   }
 }
 watch(no, load, { immediate: true })
+onUnmounted(() => ctx?.revert())
 
 onMounted(async () => {
   try {
@@ -56,14 +89,6 @@ const scrollBox = ref<HTMLElement | null>(null)
 
 const aiBlocks = computed(() => parseAiSections(aiText.value))
 const catList = computed(() => Object.entries(sign.value?.categories ?? {}))
-
-// 竖排签诗高度 = 最长句字数 × (1em 字宽 + 0.32em 字距) + 余量。
-// 必须给足高度,否则 WebView 会按容器高度把竖排文字折列,渲染成错位多列。
-const poemHeightStyle = computed(() => {
-  const lines = sign.value?.poem ?? []
-  const maxChars = Math.max(1, ...lines.map((l) => l.length))
-  return { height: `${(maxChars * 1.32 + 0.8).toFixed(2)}em` }
-})
 
 async function startInterpret() {
   if (!sign.value || aiState.value === 'streaming') return
@@ -118,7 +143,7 @@ function scrollToBottom() {
 }
 
 // ---------- 追问 ----------
-const thread = ref<ChatMessage[]>([]) // [0]=首答,其后为追问问答(仅作上下文,渲染用 slice(1))
+const thread = ref<ChatMessage[]>([])
 const followup = ref('')
 const sending = ref(false)
 
@@ -160,59 +185,60 @@ async function sendFollowup() {
   <div v-if="loadError" class="banner error">{{ loadError }}</div>
   <div v-else-if="!sign" class="center muted" style="padding: 60px 0">签文加载中……</div>
 
-  <div v-else class="stack-24">
-    <div v-if="fresh" class="banner info reveal">
+  <div v-else ref="pageEl" class="stack-24 sign-page">
+    <div v-if="fresh" class="banner info">
       已为君落签 —— 此签为方才摇得<span v-if="fromQuestion">,所问:「{{ fromQuestion }}」</span>
     </div>
 
-    <!-- 签牌 -->
-    <div class="sign-plaque reveal">
+    <!-- 签牌(紧凑版:横向签诗) -->
+    <section class="sign-plaque">
       <div class="plaque-head">
         <span class="plaque-no">吕祖灵签</span>
         <h1 class="plaque-title">{{ sign.title }}</h1>
+        <span v-if="sign.ancient" class="plaque-ancient">典故 · {{ sign.ancient }}</span>
       </div>
       <div class="poem-frame">
-        <div class="poem-vertical" :style="poemHeightStyle">
+        <div class="poem-horizontal">
           <div v-for="(line, i) in sign.poem" :key="i" class="poem-line">{{ line }}</div>
         </div>
         <span class="poem-seal">青<br />签<br />印</span>
       </div>
-      <div class="plaque-caption">— 签 诗 —</div>
-    </div>
+    </section>
 
-    <!-- 古文解 -->
-    <div class="panel reveal d1">
-      <div class="sec-title">解 曰</div>
-      <p class="classic-text" style="margin: 0">{{ sign.jieyue || '(源本缺此项)' }}</p>
-      <div class="sec-title" style="margin-top: 24px">卦 象</div>
-      <p class="classic-text" style="margin: 0">{{ sign.hexagram || '(此签源本缺卦象)' }}</p>
-      <template v-if="sign.overview">
-        <div class="sec-title" style="margin-top: 24px">签 意 总 述</div>
-        <p class="plain-text" style="margin: 0">{{ sign.overview }}</p>
-      </template>
-    </div>
+    <!-- 双栏:古文解 / 白话详解 -->
+    <div class="grid-2">
+      <section class="panel">
+        <div class="sec-title">解 曰</div>
+        <p class="classic-text" style="margin: 0">{{ sign.jieyue || '(源本缺此项)' }}</p>
+        <div class="sec-title" style="margin-top: 18px">卦 象</div>
+        <p class="classic-text" style="margin: 0">{{ sign.hexagram || '(此签源本缺卦象)' }}</p>
+        <template v-if="sign.overview">
+          <div class="sec-title" style="margin-top: 18px">签 意 总 述</div>
+          <p class="plain-text" style="margin: 0">{{ sign.overview }}</p>
+        </template>
+      </section>
 
-    <!-- 白话详解 -->
-    <div class="panel reveal d2">
-      <div class="sec-title">白 话 详 解</div>
-      <p v-if="sign.vernacular.poem.length" class="classic-text" style="margin: 0">
-        {{ sign.vernacular.poem.join('') }}
-      </p>
-      <p v-if="sign.vernacular.jieyue" class="plain-text" style="margin: 14px 0 0">
-        {{ sign.vernacular.jieyue }}
-      </p>
-      <p v-if="sign.summary" class="plain-text" style="margin: 14px 0 0">{{ sign.summary }}</p>
-      <p
-        v-if="!sign.vernacular.poem.length && !sign.vernacular.jieyue && !sign.summary"
-        class="muted"
-        style="margin: 0"
-      >
-        (此签源本无白话详解段)
-      </p>
+      <section class="panel">
+        <div class="sec-title">白 话 详 解</div>
+        <p v-if="sign.vernacular.poem.length" class="classic-text" style="margin: 0">
+          {{ sign.vernacular.poem.join('') }}
+        </p>
+        <p v-if="sign.vernacular.jieyue" class="plain-text" style="margin: 12px 0 0">
+          {{ sign.vernacular.jieyue }}
+        </p>
+        <p v-if="sign.summary" class="plain-text" style="margin: 12px 0 0">{{ sign.summary }}</p>
+        <p
+          v-if="!sign.vernacular.poem.length && !sign.vernacular.jieyue && !sign.summary"
+          class="muted"
+          style="margin: 0"
+        >
+          (此签源本无白话详解段)
+        </p>
+      </section>
     </div>
 
     <!-- 分项释义 -->
-    <div v-if="catList.length" class="panel reveal d3">
+    <section v-if="catList.length" class="panel">
       <div class="sec-title">传 统 分 项 释 义</div>
       <div class="cat-grid">
         <div v-for="[k, v] in catList" :key="k" class="cat-item">
@@ -220,15 +246,16 @@ async function sendFollowup() {
           <div class="cat-val">{{ v }}</div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- AI 解签 -->
-    <div class="panel ai-panel reveal d4">
+    <section class="panel ai-panel">
       <div class="sec-title">师 傅 解 签</div>
 
       <div v-if="llmReady === false" class="banner warm">
-        AI 解签尚未配置:在 <code>backend/.env</code> 中填写 <code>LLM_API_KEY</code> 后即可使用
-        —— 未配置不影响上方签文阅读。
+        AI 解签尚未配置:可在
+        <router-link to="/admin">后台管理 → AI 配置</router-link>
+        中填写 API Key(或改 backend/.env)—— 未配置不影响上方签文阅读。
       </div>
 
       <div v-if="aiState === 'idle'">
@@ -241,7 +268,7 @@ async function sendFollowup() {
           />
           <button class="btn" :disabled="llmReady === false" @click="startInterpret">请 师 傅 解 签</button>
         </div>
-        <p class="muted" style="margin-top: 10px">解签由 AI 依本签签文生成,仅供文化娱乐参考。</p>
+        <p class="muted" style="margin-top: 8px">解签由 AI 依本签签文生成,仅供文化娱乐参考。</p>
       </div>
 
       <div v-else>
@@ -279,10 +306,10 @@ async function sendFollowup() {
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
     <!-- 底部动作 -->
-    <div class="row-between reveal d4">
+    <div class="row-between">
       <router-link to="/library" class="muted" style="text-decoration: none">← 回签文库</router-link>
       <button class="btn ghost" @click="router.push('/')">再 抽 一 签</button>
     </div>
@@ -290,14 +317,15 @@ async function sendFollowup() {
 </template>
 
 <style scoped>
+.sign-page { --panel-gap: 20px; }
 .ai-scroll {
-  max-height: 60vh;
+  max-height: 46vh;
   overflow-y: auto;
   padding-right: 6px;
   margin-top: 4px;
 }
 .followup-thread {
-  margin-top: 18px;
+  margin-top: 16px;
   border-top: 1px dashed var(--line-2);
   padding-top: 8px;
 }

@@ -107,3 +107,16 @@ class Message(Base):
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), comment="时间"
     )
+
+
+class Setting(Base):
+    """系统配置(键值对,后台管理页维护;AI 配置优先于 .env)。"""
+
+    __tablename__ = "settings"
+    __table_args__ = {"comment": "系统配置(键值对;后台管理页维护,优先于 .env)"}
+
+    key: Mapped[str] = mapped_column(String(64), primary_key=True, comment="配置键(如 llm_api_key)")
+    value: Mapped[str | None] = mapped_column(Text, comment="配置值(字符串;温度/上限按数字解析)")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="最后修改时间"
+    )
