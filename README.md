@@ -87,7 +87,7 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 
 ## 后台管理
 
-访问 `/#/admin`,账号取自 `backend/.env` 的 `ADMIN_USERNAME` / `ADMIN_PASSWORD`(示例默认 `admin` / `qingqian-admin`,**公开部署前务必修改**)。
+访问 `/#/admin`,账号取自 `backend/.env` 的 `ADMIN_USERNAME` / `ADMIN_PASSWORD`(**公开部署前务必修改为强密码**)。
 
 | 模块 | 功能 |
 |---|---|

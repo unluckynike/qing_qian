@@ -15,6 +15,7 @@ const router = useRouter()
 
 const pageEl = ref<HTMLElement | null>(null)
 let ctx: gsap.Context | undefined
+let watchdog: number | undefined
 
 const sign = ref<SignDetail | null>(null)
 const loadError = ref('')
@@ -53,6 +54,17 @@ function animateIn() {
       )
       .from('.sign-page .row-between', { autoAlpha: 0, duration: 0.4 }, '-=0.12')
   }, pageEl.value)
+  // 兜底:标签页被节流时保证内容可见(与首页同一策略)
+  window.clearTimeout(watchdog)
+  watchdog = window.setTimeout(() => {
+    if (!pageEl.value) return
+    gsap.set(
+      pageEl.value.querySelectorAll(
+        '.sign-plaque, .poem-line, .poem-seal, .sign-page .grid-2 > .panel, .sign-page > .panel, .sign-page .row-between',
+      ),
+      { clearProps: 'transform,opacity,visibility,translate,rotate,scale' },
+    )
+  }, 4000)
 }
 
 async function load() {
@@ -67,7 +79,10 @@ async function load() {
   }
 }
 watch(no, load, { immediate: true })
-onUnmounted(() => ctx?.revert())
+onUnmounted(() => {
+  window.clearTimeout(watchdog)
+  ctx?.revert()
+})
 
 onMounted(async () => {
   try {
