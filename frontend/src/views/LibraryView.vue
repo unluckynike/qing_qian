@@ -27,6 +27,12 @@ const filtered = computed(() => {
     (s) => String(s.no).includes(q) || s.title.includes(q) || s.ancient.includes(q),
   )
 })
+
+function luckyClassOf(lucky: string): string {
+  if (lucky.startsWith('上')) return 'lv-shang'
+  if (lucky.startsWith('中下') || lucky.startsWith('下')) return 'lv-xia'
+  return 'lv-zhong'
+}
 </script>
 
 <template>
@@ -41,7 +47,10 @@ const filtered = computed(() => {
 
     <div v-else class="lib-grid" style="margin-top: 22px">
       <div v-for="s in filtered" :key="s.no" class="lib-card" @click="router.push(`/sign/${s.no}`)">
-        <div class="lib-no">第 {{ s.no }} 签</div>
+        <div class="lib-no">
+          第 {{ s.no }} 签
+          <span v-if="s.lucky" class="lucky-badge sm" :class="luckyClassOf(s.lucky)">{{ s.lucky }}</span>
+        </div>
         <div class="lib-title">{{ s.ancient }}</div>
         <div class="lib-ancient">{{ s.title }}</div>
       </div>

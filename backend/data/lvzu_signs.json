@@ -6,7 +6,10 @@
   "source": "https://www.zhouyi.cc/lingqian/lvzu/",
   "scraped_at": "2026-10-18",
   "license_note": "签诗/解曰/卦象等古典原文属公版;白话总述与分项释义整理自公开网页,仅内部参考,公开部署请替换",
-  "cleaning_note": "白话字段已移除源站连续重复句;签诗保留源站分行;古文其余字段未改动"
+  "cleaning_note": "白话字段已移除源站连续重复句;签诗保留源站分行;古文其余字段未改动",
+  "lucky_source": "4 签取自白话原文明确等级(12/27/32/34);其余由 AI 按统一口径归纳(非典籍原文标注)",
+  "lucky_model": "deepseek-v4-1-flash-260910",
+  "lucky_generated_at": "2026-10-20"
  },
  "signs": [
   {
@@ -43,7 +46,9 @@
     "行人": "音信将至。",
     "诉讼": "双方可得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6412.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6412.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下运势还没完全打开，别急着求成，稳住心态等时机，好事自然会来。"
   },
   {
    "no": 2,
@@ -77,7 +82,9 @@
     "行人": "远方的人较迟至。",
     "诉讼": "一时难以解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6417.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6417.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下先沉住气别急着动，熬过这段时机一转，自然飞黄腾达。"
   },
   {
    "no": 3,
@@ -111,7 +118,9 @@
     "行人": "未至。",
     "诉讼": "名正言顺地谈判，可得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6418.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6418.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下别硬争，忍一忍，等到八九月再出手，事情就顺了。"
   },
   {
    "no": 4,
@@ -145,7 +154,9 @@
     "行人": "已在途中。",
     "诉讼": "虽胜也要费很多时日。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6419.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6419.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下辛苦别怕，有贵人暗中护着，熬到秋天就有收成。"
   },
   {
    "no": 5,
@@ -181,7 +192,9 @@
     "行人": "卯日、未日可至。",
     "诉讼": "对己方不利，以和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6420.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6420.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下像旱龙困着，别急别懒，小心守着，等羊兔年或贵人搭手就能翻身。"
   },
   {
    "no": 6,
@@ -215,7 +228,9 @@
     "行人": "将至，音信先到。",
     "诉讼": "己方胜，但须迟些。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6421.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6421.html",
+   "lucky": "中吉",
+   "lucky_tone": "心宽不妒、把握时机就能平步青云，但别争别疑、别急着硬来。"
   },
   {
    "no": 7,
@@ -249,7 +264,9 @@
     "行人": "过几日有消息至。",
     "诉讼": "急则恐防败诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6422.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6422.html",
+   "lucky": "中吉",
+   "lucky_tone": "时机未到先别急，春风一到百事顺，眼下多行善、耐心等。"
   },
   {
    "no": 8,
@@ -283,7 +300,9 @@
     "行人": "酉日戍日能至。",
     "诉讼": "对方会主动提出和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6423.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6423.html",
+   "lucky": "上吉",
+   "lucky_tone": "运势正旺，喜事临门，顺其自然就能名利双收，别太操劳。"
   },
   {
    "no": 9,
@@ -317,7 +336,9 @@
     "行人": "已在途中。",
     "诉讼": "会很快得到解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6424.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6424.html",
+   "lucky": "中吉",
+   "lucky_tone": "先难后易，有贵人帮，走正道大胆干就能成，别动歪心思。"
   },
   {
    "no": 10,
@@ -351,7 +372,9 @@
     "行人": "已在途中。",
     "诉讼": "初是谈判困难，后得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6426.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6426.html",
+   "lucky": "中吉",
+   "lucky_tone": "先有波折后团圆，勤俭找对方法就能翻身，丑午年月最旺。"
   },
   {
    "no": 11,
@@ -385,7 +408,9 @@
     "行人": "已整装待发。",
     "诉讼": "能取得和解最好。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6427.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6427.html",
+   "lucky": "中吉",
+   "lucky_tone": "合作要坦诚，别各怀鬼胎；秋天后贵人相助，凡事有求能应。"
   },
   {
    "no": 12,
@@ -419,7 +444,9 @@
     "行人": "对方落实后必至。",
     "诉讼": "听从尊长的意见必胜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6428.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6428.html",
+   "lucky": "上吉",
+   "lucky_tone": "这签上吉，好事将近，就像刘阮遇仙，有缘自会碰上好运气！"
   },
   {
    "no": 13,
@@ -453,7 +480,9 @@
     "行人": "略为迟些会至。",
     "诉讼": "借助第三者的协助，可以胜诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6429.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6429.html",
+   "lucky": "中吉",
+   "lucky_tone": "先难后易，是金子总会发光，熬过初期就有贵人助你翻身。"
   },
   {
    "no": 14,
@@ -487,7 +516,9 @@
     "行人": "信息来，但人未来。",
     "诉讼": "双方清楚利害得失，会和平解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6430.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6430.html",
+   "lucky": "中吉",
+   "lucky_tone": "时机到了就大胆出手，但别硬碰硬，借力才能成事。"
   },
   {
    "no": 15,
@@ -521,7 +552,9 @@
     "行人": "仍然未曾动身。",
     "诉讼": "双方和解为最佳解决办法。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6431.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6431.html",
+   "lucky": "中吉",
+   "lucky_tone": "好事天注定，别急，等时机成熟自然有收成。"
   },
   {
    "no": 16,
@@ -555,7 +588,9 @@
     "行人": "信息先至，人后至。",
     "诉讼": "提出证据，对方会答应和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6432.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6432.html",
+   "lucky": "上吉",
+   "lucky_tone": "时运正旺，谋事多成，但别得意忘形，积德守心才能一路顺到底。"
   },
   {
    "no": 17,
@@ -589,7 +624,9 @@
     "行人": "子午日会到。",
     "诉讼": "尽量和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6433.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6433.html",
+   "lucky": "中吉",
+   "lucky_tone": "运势不差，但别耍小聪明，真诚守原则、找靠谱伙伴才能成事。"
   },
   {
    "no": 18,
@@ -623,7 +660,9 @@
     "行人": "通知必来。",
     "诉讼": "和解为上，否则败诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6435.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6435.html",
+   "lucky": "中吉",
+   "lucky_tone": "万事俱备只欠东风，沉住气等时机，防着点小人就能成。"
   },
   {
    "no": 19,
@@ -657,7 +696,9 @@
     "行人": "子午日会到。",
     "诉讼": "千万不能性急地谈判。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6436.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6436.html",
+   "lucky": "上吉",
+   "lucky_tone": "时机一到就顺了，坚持做好本分，秋天最旺，别心急。"
   },
   {
    "no": 20,
@@ -691,7 +732,9 @@
     "行人": "辰午之日必到。",
     "诉讼": "理直气壮则胜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6437.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6437.html",
+   "lucky": "中吉",
+   "lucky_tone": "已经成功八九成，再坚持一下就能圆满，别半途松劲。"
   },
   {
    "no": 21,
@@ -725,7 +768,9 @@
     "行人": "子丑日可至。",
     "诉讼": "谈判初期强硬，就会成功。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6438.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6438.html",
+   "lucky": "中吉",
+   "lucky_tone": "先难后易，稳住别急，踏实做事终能云散天开。"
   },
   {
    "no": 22,
@@ -759,7 +804,9 @@
     "行人": "子日、丑日即至。",
     "诉讼": "可以取得胜诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6439.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6439.html",
+   "lucky": "上上",
+   "lucky_tone": "运势极旺，贵人相助，努力行善就能名成利就，大吉大利！"
   },
   {
    "no": 23,
@@ -793,7 +840,9 @@
     "行人": "已在途中。",
     "诉讼": "双方会迅速和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6440.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6440.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下先忍一忍、藏点实力，熬到夏末秋初就能扬眉吐气。"
   },
   {
    "no": 24,
@@ -827,7 +876,9 @@
     "行人": "在远方仍未动身。",
     "诉讼": "己方吃一点亏即能各解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6441.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6441.html",
+   "lucky": "中吉",
+   "lucky_tone": "先苦后甜，好运在龙蛇马年月到来，守住心志别三心二意，富贵才长久。"
   },
   {
    "no": 25,
@@ -861,7 +912,9 @@
     "行人": "已在途中。",
     "诉讼": "要尽快解决，否则败诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6442.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6442.html",
+   "lucky": "中吉",
+   "lucky_tone": "先难后易，以退为进，守份待时，水旺之年自会顺遂。"
   },
   {
    "no": 26,
@@ -895,7 +948,9 @@
     "行人": "已动身，在途中。",
     "诉讼": "宜解不宜结，能速和解最吉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6443.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6443.html",
+   "lucky": "中吉",
+   "lucky_tone": "大器晚成，先熬三个月，守住初心，喜事自然来。"
   },
   {
    "no": 27,
@@ -929,7 +984,9 @@
     "行人": "会至，但稍迟。",
     "诉讼": "如能和解则无碍。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6444.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6444.html",
+   "lucky": "中平",
+   "lucky_tone": "中平签，好事多磨，卞和献宝终被识，耐心等就有转机。"
   },
   {
    "no": 28,
@@ -963,7 +1020,9 @@
     "行人": "即至，并有佳音。",
     "诉讼": "宜尽速解决，久延则恐有变。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6445.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6445.html",
+   "lucky": "上吉",
+   "lucky_tone": "命中带贵人，谋事往东西方向走，勤快守和就能成，别拖官司。"
   },
   {
    "no": 29,
@@ -997,7 +1056,9 @@
     "行人": "不能即至，卯日或申日可至。",
     "诉讼": "耐心进行谈判可和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6446.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6446.html",
+   "lucky": "中吉",
+   "lucky_tone": "开头虽有阻碍，别急，后面自有转机和贵人相助，守得住就成。"
   },
   {
    "no": 30,
@@ -1031,7 +1092,9 @@
     "行人": "六、十之日可至。",
     "诉讼": "谈判若急躁便会吃亏。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6447.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6447.html",
+   "lucky": "中吉",
+   "lucky_tone": "做事有成就，但别急别贪高，知足守成，逢六逢十自有遇合。"
   },
   {
    "no": 31,
@@ -1065,7 +1128,9 @@
     "行人": "已在途中将至。",
     "诉讼": "只要己方稍为吃亏便息纷争。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6448.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6448.html",
+   "lucky": "中下",
+   "lucky_tone": "看着要成的事容易翻车，别贪别硬来，谨慎忍让、吃亏当便宜才能保平安。"
   },
   {
    "no": 32,
@@ -1099,7 +1164,9 @@
     "行人": "迟至，但先有信息。",
     "诉讼": "现阶段有阻，终可获胜诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6450.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6450.html",
+   "lucky": "中吉",
+   "lucky_tone": "中吉：事情能成，但别急，稳着走，最后结果不差。"
   },
   {
    "no": 33,
@@ -1133,7 +1200,9 @@
     "行人": "尚有阻，未至。",
     "诉讼": "一切以和为贵。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6451.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6451.html",
+   "lucky": "中吉",
+   "lucky_tone": "别硬来，忍一忍顺其自然，福气在后头，三七之内自有荣华。"
   },
   {
    "no": 34,
@@ -1167,7 +1236,9 @@
     "行人": "已在时途，即至。",
     "诉讼": "小心处理，有败诉之象。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6452.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6452.html",
+   "lucky": "中下",
+   "lucky_tone": "这签中下，眼下事儿不太顺，别硬冲，稳住等转机吧。"
   },
   {
    "no": 35,
@@ -1201,7 +1272,9 @@
     "行人": "在途中，有阻滞。",
     "诉讼": "有凶险，须提防。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6453.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6453.html",
+   "lucky": "中吉",
+   "lucky_tone": "险处逢生，有贵人相助，但凡事小心、多积善，防身边人使绊子。"
   },
   {
    "no": 36,
@@ -1235,7 +1308,9 @@
     "行人": "已在归途中。",
     "诉讼": "自己一方得理，可胜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6454.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6454.html",
+   "lucky": "上吉",
+   "lucky_tone": "喜鹊报喜，好运开头，凡事早计划就能顺顺当当。"
   },
   {
    "no": 37,
@@ -1269,7 +1344,9 @@
     "行人": "早晚即至。",
     "诉讼": "以和为贵，早点解决好。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6455.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6455.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下虽辛苦，但久困将伸，坚持行善，终能收获好结果。"
   },
   {
    "no": 38,
@@ -1303,7 +1380,9 @@
     "行人": "仍未至，再催促即至。",
     "诉讼": "现在谈判不利，迟一阵吉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6457.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6457.html",
+   "lucky": "上吉",
+   "lucky_tone": "苦尽甘来，好运正翻身，别心急，多行善，慢慢来就能出头。"
   },
   {
    "no": 39,
@@ -1337,7 +1416,9 @@
     "行人": "已在途中。",
     "诉讼": "能尽量和解最好。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6459.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6459.html",
+   "lucky": "中吉",
+   "lucky_tone": "时机未到先沉住气，耐心守候，贵人一到自然水到渠成。"
   },
   {
    "no": 40,
@@ -1371,7 +1452,9 @@
     "行人": "寅辰日可至。",
     "诉讼": "在谈笑中可以解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6460.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6460.html",
+   "lucky": "上吉",
+   "lucky_tone": "找人搭伙一起干，事就成了，别一个人硬扛。"
   },
   {
    "no": 41,
@@ -1405,7 +1488,9 @@
     "行人": "一定会到来。",
     "诉讼": "有道理的坚持，可以胜利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6463.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6463.html",
+   "lucky": "中平",
+   "lucky_tone": "运势起落反复，处境有虚惊，凡事谨慎守稳、步步为营，方能转危为安。"
   },
   {
    "no": 42,
@@ -1439,7 +1524,9 @@
     "行人": "午日必至。",
     "诉讼": "托第三者和解会易。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6465.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6465.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下先别慌，熬到时机成熟自然成，逢午年月日更顺。"
   },
   {
    "no": 43,
@@ -1473,7 +1560,9 @@
     "行人": "远在他方未动。",
     "诉讼": "尽量争取和解，否则亏损很大。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6467.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6467.html",
+   "lucky": "中平",
+   "lucky_tone": "眼下不顺别心急，安分守己等时机，时候一到忧转喜。"
   },
   {
    "no": 44,
@@ -1507,7 +1596,9 @@
     "行人": "会到但迟。",
     "诉讼": "如能赔少许对方即可和解，此是福也。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6468.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6468.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下宜守不宜攻，别急着强求，忍一忍、向善修心，出头日子在后头。"
   },
   {
    "no": 45,
@@ -1541,7 +1632,9 @@
     "行人": "会有消息至。",
     "诉讼": "借助他人之力谈判可成。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6472.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6472.html",
+   "lucky": "中吉",
+   "lucky_tone": "好事就在眼前，但别心急，慢慢来、不忘本，自有人相助成事。"
   },
   {
    "no": 46,
@@ -1575,7 +1668,9 @@
     "行人": "在远处来会较迟。",
     "诉讼": "说明利害得失，可以和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6476.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6476.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下路不通别急，先难后易，多行善事、耐心等三五之期，终能成事。"
   },
   {
    "no": 47,
@@ -1609,7 +1704,9 @@
     "行人": "阻滞在途中。",
     "诉讼": "宜尽快解决，迟则生变。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6478.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6478.html",
+   "lucky": "中下",
+   "lucky_tone": "事情看着快成了却难保住，别贪别争，安分守己、一心向善才能平安。"
   },
   {
    "no": 48,
@@ -1643,7 +1740,9 @@
     "行人": "人会来的。",
     "诉讼": "谈判不成，和解为妙。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6480.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6480.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下事看着能成其实难成，别急着投资，先咬牙坚持等时机。"
   },
   {
    "no": 49,
@@ -1677,7 +1776,9 @@
     "行人": "尚远而未至。",
     "诉讼": "以忍让来谈判，可解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6481.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6481.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下别硬撑，退一步回家守本分，强求只会更累。"
   },
   {
    "no": 50,
@@ -1711,7 +1812,9 @@
     "行人": "一、两日内至。",
     "诉讼": "性急反而损害。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6483.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6483.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下多是虚张声势，别急着争，等到夏天火旺时再出手，先难后易终能成。"
   },
   {
    "no": 51,
@@ -1747,7 +1850,9 @@
     "行人": "有阻滞未至。",
     "诉讼": "托第三者和解，须吃亏。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6495.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6495.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下多磨难，破财惹祸防不胜防，先忍一忍、修德行善，别硬闯。"
   },
   {
    "no": 52,
@@ -1783,7 +1888,9 @@
     "行人": "已在途中。",
     "诉讼": "托第三者和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6496.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6496.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下多波折，别急别硬来，守好本分慢慢熬，诚心能过关。"
   },
   {
    "no": 53,
@@ -1819,7 +1926,9 @@
     "行人": "不能即来。",
     "诉讼": "对己方不利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6497.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6497.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下有点小阻碍，别急，等时机到了自然顺，贵人也会来帮你。"
   },
   {
    "no": 54,
@@ -1855,7 +1964,9 @@
     "行人": "有事受阻于途中。",
     "诉讼": "托第三者解决，纠缠久则有祸。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6498.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6498.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下进退两难，别急着硬来，耐守等时机，运势到了自然顺。"
   },
   {
    "no": 55,
@@ -1891,7 +2002,9 @@
     "行人": "虽迟也会到来。",
     "诉讼": "胜算不多，以和为贵。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6499.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6499.html",
+   "lucky": "中吉",
+   "lucky_tone": "该来的跑不掉，先沉住气等时机，别急着动手。"
   },
   {
    "no": 56,
@@ -1927,7 +2040,9 @@
     "行人": "这几日内有消息。",
     "诉讼": "以和为贵，急则必败。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6500.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6500.html",
+   "lucky": "中平",
+   "lucky_tone": "命中自有安排，别贪别急，守好本分，慢慢来终会顺。"
   },
   {
    "no": 57,
@@ -1963,7 +2078,9 @@
     "行人": "即使来也很迟。",
     "诉讼": "自己有损失，但得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6501.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6501.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下求什么都难成，别争别急，忍一忍、等一等，吃亏反而是福。"
   },
   {
    "no": 58,
@@ -1999,7 +2116,9 @@
     "行人": "一收到你的通知即来。",
     "诉讼": "急急地去进行会胜利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6502.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6502.html",
+   "lucky": "中吉",
+   "lucky_tone": "该收手就收手，别赶尽杀绝，守稳旧局、耐心等时机，事情自然能成。"
   },
   {
    "no": 59,
@@ -2035,7 +2154,9 @@
     "行人": "即至，并有佳音。",
     "诉讼": "将会平息，得胜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6503.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6503.html",
+   "lucky": "上吉",
+   "lucky_tone": "运势很旺，做事顺当，别瞎猜疑，多行善福气更大。"
   },
   {
    "no": 60,
@@ -2071,7 +2192,9 @@
     "行人": "在途中受到阻碍。",
     "诉讼": "谈判会很长久，双方都有损失。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6504.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6504.html",
+   "lucky": "中下",
+   "lucky_tone": "别硬求，强争反失；守好本分、稳住心，慢慢熬才见转机。"
   },
   {
    "no": 61,
@@ -2107,7 +2230,9 @@
     "行人": "已回。",
     "诉讼": "己方可得胜诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6505.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6505.html",
+   "lucky": "上吉",
+   "lucky_tone": "先苦后甜，久等的事终于要成了，好消息正在路上，稳住就能喜相逢。"
   },
   {
    "no": 62,
@@ -2142,7 +2267,9 @@
     "行人": "即至，与友人同来。",
     "诉讼": "进行谈判，并无阻滞。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6506.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6506.html",
+   "lucky": "上吉",
+   "lucky_tone": "大吉大利别着急，时机一到自然成，贵人相助事事顺。"
   },
   {
    "no": 63,
@@ -2177,7 +2304,9 @@
     "行人": "即至。",
     "诉讼": "托人去办和解可成。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6507.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6507.html",
+   "lucky": "下下",
+   "lucky_tone": "眼下诸事不顺、希望渺茫，唯有赶紧行善修德，才可能转危为安。"
   },
   {
    "no": 64,
@@ -2213,7 +2342,9 @@
     "行人": "将至，有同伴。",
     "诉讼": "双方以和为贵，能解决最好。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6508.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6508.html",
+   "lucky": "下下",
+   "lucky_tone": "半路防骗防小人，诸事难成，修善谨慎才能少惹祸。"
   },
   {
    "no": 65,
@@ -2249,7 +2380,9 @@
     "行人": "还有一事要阻延，迟些到。",
     "诉讼": "双方已有协议和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6509.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6509.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下有点反复不顺，别硬来，忍一忍、等一等，好事在后头。"
   },
   {
    "no": 66,
@@ -2285,7 +2418,9 @@
     "行人": "未有动身的迹象。",
     "诉讼": "宜息争，由有力人十协助则速。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6510.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6510.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下诸事别强求，安分守己、耐心等时机，多积德自有贵人帮。"
   },
   {
    "no": 67,
@@ -2321,7 +2456,9 @@
     "行人": "未动，有音讯至。",
     "诉讼": "滞蹇不要心急，忍耐有利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6511.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6511.html",
+   "lucky": "中平",
+   "lucky_tone": "眼下磕磕绊绊别急躁，凡事忍让谦和、小心调养，慢慢就能转好。"
   },
   {
    "no": 68,
@@ -2357,7 +2494,9 @@
     "行人": "已经归至。",
     "诉讼": "自己有理，可胜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6512.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6512.html",
+   "lucky": "中下",
+   "lucky_tone": "表面平安，暗藏小人，丑戌年月日尤其要防，谨慎守成别乱投资。"
   },
   {
    "no": 69,
@@ -2393,7 +2532,9 @@
     "行人": "一二日将至。",
     "诉讼": "谈判早些了结，便名胜利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6513.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6513.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下时机未到，凡事多提防小人、谨慎忍耐，熬过去自会逢凶化吉。"
   },
   {
    "no": 70,
@@ -2429,7 +2570,9 @@
     "行人": "催促一下便至。",
     "诉讼": "把事放开，终得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6514.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6514.html",
+   "lucky": "上吉",
+   "lucky_tone": "运气正旺，辛苦过后有回报，升职赚钱都顺，忠厚待人更添福。"
   },
   {
    "no": 71,
@@ -2464,7 +2607,9 @@
     "行人": "人不至，言信亦踏。",
     "诉讼": "谈判费时而且失败。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6515.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6515.html",
+   "lucky": "下下",
+   "lucky_tone": "眼下诸事不宜强求，先修心守德、稳住自己，等时机转好再动。"
   },
   {
    "no": 72,
@@ -2500,7 +2645,9 @@
     "行人": "未至。",
     "诉讼": "始终不能和解，会败诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6516.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6516.html",
+   "lucky": "中下",
+   "lucky_tone": "前路有险，别急着往前冲，先稳住自己、修心行善，熬过这段再说。"
   },
   {
    "no": 73,
@@ -2535,7 +2682,9 @@
     "行人": "不能好来。",
     "诉讼": "自己一方会败诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6517.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6517.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下有孽障挡路，先改过行善、别急着单干，等贵人搭手才有转机。"
   },
   {
    "no": 74,
@@ -2571,7 +2720,9 @@
     "行人": "在原地未动。",
     "诉讼": "宜解，唯未至时机。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6518.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6518.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下做事辛苦又遇小人，先别硬拼，熬到寅辰时机才有转机。"
   },
   {
    "no": 75,
@@ -2607,7 +2758,9 @@
     "行人": "到来又匆匆离去。",
     "诉讼": "对方和解亦有损克。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6519.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6519.html",
+   "lucky": "下下",
+   "lucky_tone": "凶险之签，凡事有阻不吉，最忌出门，宜修德谨慎，切莫强求。"
   },
   {
    "no": 76,
@@ -2643,7 +2796,9 @@
     "行人": "或来，或会有消息。",
     "诉讼": "有力人士出面会很快解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6520.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6520.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下运势不通，别急着往前冲，先守住本分、耐心等时机，硬来容易吃亏。"
   },
   {
    "no": 77,
@@ -2679,7 +2834,9 @@
     "行人": "途中遇贵人。",
     "诉讼": "略为迟一些，终必胜诉。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6521.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6521.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下受困别硬来，耐住性子等时机，时候一到自会顺。"
   },
   {
    "no": 78,
@@ -2715,7 +2872,9 @@
     "行人": "会迟些到，必至。",
     "诉讼": "对方较强，和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6522.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6522.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下险阻重重、诸事迟缓，但危中有救，耐心守候终能过关。"
   },
   {
    "no": 79,
@@ -2750,7 +2909,9 @@
     "行人": "数日内至。",
     "诉讼": "谈判很快和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6523.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6523.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下破镜难圆、逆水难行，凡事别硬撑，守正道、少口舌，等时机转好。"
   },
   {
    "no": 80,
@@ -2786,7 +2947,9 @@
     "行人": "未至，有信息至。",
     "诉讼": "表面上协调，提防对立暗中耍手段。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6524.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6524.html",
+   "lucky": "中平",
+   "lucky_tone": "别贪多，慢慢来，知足才能安稳，急也急不来。"
   },
   {
    "no": 81,
@@ -2821,7 +2984,9 @@
     "行人": "将至，有好消息。",
     "诉讼": "和解对双方有利，会很快平息。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6527.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6527.html",
+   "lucky": "中吉",
+   "lucky_tone": "这事得靠人搭伙才成，合久防分，别一个人硬扛。"
   },
   {
    "no": 82,
@@ -2857,7 +3022,9 @@
     "行人": "最终也不能来。",
     "诉讼": "能和解最好。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6530.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6530.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下风紧船漏，别硬闯，熬到春天才有转机，先稳住自己。"
   },
   {
    "no": 83,
@@ -2892,7 +3059,9 @@
     "行人": "现在不会来，要迟些。",
     "诉讼": "谈判恐生意外之事情。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6532.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6532.html",
+   "lucky": "下下",
+   "lucky_tone": "运势低迷，诸事不宜强求，转业另谋出路或有一线生机。"
   },
   {
    "no": 84,
@@ -2928,7 +3097,9 @@
     "行人": "羁留原地未动。",
     "诉讼": "会吃亏，宜息纷争。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6533.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6533.html",
+   "lucky": "中下",
+   "lucky_tone": "眼前机会多是假象，别急着出手，先守好自己，入冬后才有转机。"
   },
   {
    "no": 85,
@@ -2964,7 +3135,9 @@
     "行人": "人不来，有信息至。",
     "诉讼": "早点解决损失较少。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6534.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6534.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下运气未到，硬做难成，先宽心守候、多积善缘，等时机转好再动。"
   },
   {
    "no": 86,
@@ -2999,7 +3172,9 @@
     "行人": "迟些，必至。",
     "诉讼": "付出对方满意金额方和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6535.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6535.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下冷清别灰心，等月亮上来还有转机，婚姻要当心。"
   },
   {
    "no": 87,
@@ -3034,7 +3209,9 @@
     "行人": "一、两日内即至。",
     "诉讼": "向对方陈说利害，可得和解。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6536.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6536.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下运气卡壳，别急着乱动，守得住、熬到最后才有转机。"
   },
   {
    "no": 88,
@@ -3070,7 +3247,9 @@
     "行人": "有事阻滞，不至。",
     "诉讼": "要平心静气争取和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6537.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6537.html",
+   "lucky": "下下",
+   "lucky_tone": "时机未到，诸事如镜花水月，别硬撑，先修心守候。"
   },
   {
    "no": 89,
@@ -3105,7 +3284,9 @@
     "行人": "没有来的意愿，在家守候着。",
     "诉讼": "经多番交涉始成功。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6540.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6540.html",
+   "lucky": "中吉",
+   "lucky_tone": "事情虽隔山隔水、辛苦劳碌，但熬到贵人出现就能成，别灰心。"
   },
   {
    "no": 90,
@@ -3136,7 +3317,9 @@
     "疾病": "要慢慢才能痊愈。",
     "六甲": "提防有意外。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6544.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6544.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下运势反复不顺，凡事别硬扛，找人帮忙、处处小心，才能险中求安。"
   },
   {
    "no": 91,
@@ -3172,7 +3355,9 @@
     "行人": "不会到。",
     "诉讼": "防对方不肯和解，否则可速解决。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6555.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6555.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下像瞎马乱走，别急别硬闯，先修心忍耐，熬到最后才有转机。"
   },
   {
    "no": 92,
@@ -3208,7 +3393,9 @@
     "行人": "已在道途中。",
     "诉讼": "还是以和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6556.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6556.html",
+   "lucky": "中下",
+   "lucky_tone": "雷大雨小，付出多回报少，凡事小心、多行善，方能慢慢化解。"
   },
   {
    "no": 93,
@@ -3243,7 +3430,9 @@
     "行人": "突然音讯全无。",
     "诉讼": "败诉，恐有刑事之灾。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6557.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6557.html",
+   "lucky": "下下",
+   "lucky_tone": "眼下运势低迷，别硬来，安分修善才能避灾，凡事多留个心眼。"
   },
   {
    "no": 94,
@@ -3279,7 +3468,9 @@
     "行人": "还在原地未启程。",
     "诉讼": "对己方不利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6558.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6558.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下虽苦别灰心，先难后易，多积德，好日子在后头。"
   },
   {
    "no": 95,
@@ -3314,7 +3505,9 @@
     "行人": "未至，在途中。",
     "诉讼": "双方和解为宜。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6559.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6559.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下像被困住，别慌，多行善事、遇贵人可逢凶化吉，谨慎点就能成。"
   },
   {
    "no": 96,
@@ -3349,7 +3542,9 @@
     "行人": "来得极迟。",
     "诉讼": "终必解决，但已两败俱伤。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6560.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6560.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下诸事不顺、得失难全，别灰心，咬牙熬过去才有转机。"
   },
   {
    "no": 97,
@@ -3385,7 +3580,9 @@
     "行人": "渐至。",
     "诉讼": "再候一段时间谈判，可无碍。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6561.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6561.html",
+   "lucky": "中吉",
+   "lucky_tone": "时机未到别心急，慢慢努力终能成，先难后易之象。"
   },
   {
    "no": 98,
@@ -3421,7 +3618,9 @@
     "行人": "已在旅途之中。",
     "诉讼": "双方均无好处。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6562.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6562.html",
+   "lucky": "中吉",
+   "lucky_tone": "眼下先别急，耐着性子等时机，久等自有好结果。"
   },
   {
    "no": 99,
@@ -3455,7 +3654,9 @@
     "行人": "即至。",
     "诉讼": "已方有利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6563.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6563.html",
+   "lucky": "中下",
+   "lucky_tone": "眼下有得有失、运势不顺，别急别躁，小心慢行才能平安过关。"
   },
   {
    "no": 100,
@@ -3490,7 +3691,9 @@
     "行人": "有阻碍，迟至。",
     "诉讼": "对方有利。"
    },
-   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6564.html"
+   "source_url": "https://www.zhouyi.cc/lingqian/lvzu/6564.html",
+   "lucky": "下下",
+   "lucky_tone": "眼下诸事不成，越急越糟，先修身忍耐，等坏运过去再说。"
   }
  ]
 }

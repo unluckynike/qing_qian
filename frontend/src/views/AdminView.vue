@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'
+import { refreshAdminFlag } from '../store/auth'
 import {
   adminDeleteDrawing,
   adminDeleteUser,
@@ -42,6 +43,7 @@ const aiForm = reactive({
   llm_model: '',
   llm_temperature: 0.8,
   llm_max_tokens: 1200,
+  llm_thinking: '',
   apiKeyInput: '',
 })
 const testResult = ref('')
@@ -68,6 +70,7 @@ async function doLogin() {
   try {
     await adminLogin(loginForm.username.trim(), loginForm.password)
     token.value = getAdminToken()
+    refreshAdminFlag()
     await loadTab()
   } catch (e) {
     loginError.value = msg(e)
@@ -79,6 +82,7 @@ async function doLogin() {
 function logout() {
   setAdminToken('')
   token.value = ''
+  refreshAdminFlag()
   loginForm.password = ''
 }
 
@@ -146,6 +150,7 @@ async function loadSettings() {
   aiForm.llm_model = s.llm_model
   aiForm.llm_temperature = s.llm_temperature
   aiForm.llm_max_tokens = s.llm_max_tokens
+  aiForm.llm_thinking = s.llm_thinking || ''
   aiForm.apiKeyInput = ''
   testResult.value = ''
 }
@@ -161,6 +166,7 @@ async function saveSettings() {
       llm_model: aiForm.llm_model.trim(),
       llm_temperature: aiForm.llm_temperature,
       llm_max_tokens: aiForm.llm_max_tokens,
+      llm_thinking: aiForm.llm_thinking,
     }
     if (aiForm.apiKeyInput.trim()) payload.llm_api_key = aiForm.apiKeyInput.trim()
     settings.value = await adminUpdateSettings(payload)
@@ -352,6 +358,13 @@ const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
         <div class="form-row">
           <label class="form-label" for="ai-tokens">最大输出 tokens</label>
           <input id="ai-tokens" v-model.number="aiForm.llm_max_tokens" class="input" type="number" step="64" min="16" max="8192" />
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="ai-thinking">思考模式(推理型模型)</label>
+          <select id="ai-thinking" v-model="aiForm.llm_thinking" class="input">
+            <option value="">跟随模型默认</option>
+            <option value="disabled">关闭思考(响应更快,推荐解签)</option>
+          </select>
         </div>
         <div class="form-row form-row-wide">
           <label class="form-label" for="ai-key">

@@ -13,7 +13,13 @@ onMounted(async () => {
     const data = await fetchHistory(30)
     items.value = data.items
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    const m = e instanceof Error ? e.message : String(e)
+    if (m.includes('登录')) {
+      // 令牌过期:回登录页并回跳
+      router.push({ name: 'login', query: { next: '/history' } })
+      return
+    }
+    error.value = m
   } finally {
     loading.value = false
   }
@@ -35,7 +41,7 @@ function open(item: HistoryItem) {
 <template>
   <div>
     <h2 class="page-title reveal">签 事 记</h2>
-    <p class="muted reveal d1" style="margin-top: 6px">本地留存最近三十次抽签与解签记录</p>
+    <p class="muted reveal d1" style="margin-top: 6px">我的抽签与解签记录(仅本人可见,留存最近三十次)</p>
 
     <div v-if="error" class="banner error">{{ error }}</div>
     <div v-else-if="loading" class="center muted" style="padding: 50px 0">加载中……</div>

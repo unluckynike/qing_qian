@@ -55,6 +55,11 @@ body {
   border-bottom: 1px solid var(--line);
 }
 .topbar-inner { display: flex; align-items: center; gap: 18px; padding: 10px 0; }
+@media (max-width: 600px) {
+  .topbar-inner { gap: 8px; }
+  .brand-sub { display: none; }
+  .nav a { padding: 6px 8px; font-size: 14px; }
+}
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); }
 .brand-name { font-family: var(--font-song); font-weight: 700; font-size: 19px; letter-spacing: 0.12em; }
 .brand-sub { font-size: 11px; color: var(--ink-3); letter-spacing: 0.24em; margin-left: 2px; }
@@ -66,6 +71,43 @@ body {
 }
 .nav a:hover { background: var(--paper-3); color: var(--ink); }
 .nav a.router-link-active { background: var(--vermilion); color: #fdf6e8; }
+
+/* ---------- 顶栏:登录入口与用户菜单 ---------- */
+.nav-auth { margin-left: 4px; position: relative; }
+.nav-cta {
+  display: inline-block; text-decoration: none;
+  font-size: 14px; letter-spacing: 0.08em;
+  color: #fbf3e2; background: var(--vermilion);
+  border-radius: 999px; padding: 7px 16px;
+  box-shadow: 0 4px 12px rgba(125, 31, 26, 0.25);
+  transition: opacity 0.18s, transform 0.18s;
+}
+.nav-cta:hover { opacity: 0.92; transform: translateY(-1px); }
+.user-menu { position: relative; }
+.user-chip {
+  appearance: none; cursor: pointer;
+  border: 1px solid var(--line-2); background: var(--paper-2);
+  color: var(--ink); font-size: 14px; letter-spacing: 0.06em;
+  padding: 6px 14px; border-radius: 999px;
+  transition: border-color 0.18s, color 0.18s;
+}
+.user-chip:hover { border-color: var(--vermilion); color: var(--vermilion); }
+.user-drop {
+  position: absolute; right: 0; top: calc(100% + 8px); z-index: 40;
+  min-width: 150px; padding: 6px;
+  display: flex; flex-direction: column;
+  background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px;
+  box-shadow: var(--shadow);
+}
+.user-drop a {
+  text-decoration: none; color: var(--ink); font-size: 14px;
+  padding: 8px 12px; border-radius: 7px;
+}
+.user-drop a:hover { background: var(--paper-3); color: var(--vermilion); }
+@media (max-width: 600px) {
+  .nav-cta { padding: 6px 10px; font-size: 13px; }
+  .user-chip { padding: 5px 10px; font-size: 13px; }
+}
 
 /* ---------- 印章 ---------- */
 .seal {
@@ -186,6 +228,28 @@ body {
   border: 1px solid var(--line-2); border-radius: 999px; padding: 2px 10px;
 }
 
+/* 基调徽章:上=朱金 / 中=墨金 / 下=青灰 */
+.lucky-badge {
+  display: inline-block;
+  font-family: var(--font-song); font-weight: 700;
+  font-size: 12.5px; letter-spacing: 0.14em;
+  border-radius: 6px; padding: 3px 10px;
+  border: 1px solid; cursor: default;
+}
+.lucky-badge.sm { font-size: 10.5px; padding: 1px 7px; margin-left: 6px; vertical-align: 1px; }
+.lucky-badge.lv-shang {
+  color: #8f2a20; background: rgba(156, 43, 35, 0.1);
+  border-color: rgba(156, 43, 35, 0.55);
+}
+.lucky-badge.lv-zhong {
+  color: #8a6a1f; background: rgba(168, 128, 58, 0.13);
+  border-color: rgba(168, 128, 58, 0.55);
+}
+.lucky-badge.lv-xia {
+  color: #4f6259; background: rgba(89, 99, 91, 0.1);
+  border-color: rgba(89, 99, 91, 0.5);
+}
+
 .poem-frame {
   margin: 14px auto 0;
   padding: 22px 18px;
@@ -201,15 +265,20 @@ body {
 }
 .poem-horizontal {
   font-family: var(--font-kai); font-weight: 600;
-  font-size: clamp(18px, 3.2vw, 25px);
+  font-size: clamp(17px, 3.2vw, 25px);
   letter-spacing: 0.14em; line-height: 1.9;
   text-align: center; color: var(--ink);
-  padding: 0 8px;
+  /* 左右对称留白:右侧同时为印章留出位置,长签诗换行也不会压到印章 */
+  padding: 0 30px 2px;
+  max-width: 100%;
+  text-wrap: balance; /* 支持的浏览器上自动均衡分行 */
 }
-.poem-horizontal .poem-line { white-space: nowrap; }
+.poem-horizontal .poem-line { white-space: normal; overflow-wrap: anywhere; }
 @media (max-width: 700px) {
-  .poem-horizontal { font-size: 18px; letter-spacing: 0.08em; line-height: 1.8; }
-  .poem-horizontal .poem-line { white-space: normal; }
+  .poem-horizontal {
+    font-size: 17px; letter-spacing: 0.08em; line-height: 1.85;
+    padding: 0 24px 2px;
+  }
 }
 .poem-seal {
   position: absolute; right: 12px; bottom: 10px;

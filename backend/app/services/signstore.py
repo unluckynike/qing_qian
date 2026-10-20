@@ -21,7 +21,7 @@ class SignStore:
 
     def list_brief(self) -> list[dict[str, Any]]:
         return [
-            {"no": s["no"], "title": s["title"], "ancient": s["ancient"]}
+            {"no": s["no"], "title": s["title"], "ancient": s["ancient"], "lucky": s.get("lucky")}
             for s in self._signs
         ]
 

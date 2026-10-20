@@ -4,18 +4,18 @@ import logging
 from collections.abc import Iterator
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 
-from ..config import settings
 from ..db import SessionLocal, db_ready
 from ..models import DrawRequest, InterpretRequest
-from ..orm import Drawing, Message, Reading
+from ..orm import Drawing, Message, Reading, User
 from ..services import llm
 from ..services.ai_config import get_ai_config
 from ..services.prompt import PROMPT_VERSION, build_messages
 from ..services.signstore import store
+from ..services.user_auth import current_user_optional, require_user
 
 logger = logging.getLogger(__name__)
 router = APIRouter(tags=["divination"])
@@ -47,8 +47,8 @@ def _reject_injection(*texts: str | None) -> None:
 
 
 @router.post("/draw")
-def draw(body: DrawRequest) -> dict:
-    """安全随机抽签;可持久化时写入 drawings 记录。"""
+def draw(body: DrawRequest, user: User | None = Depends(current_user_optional)) -> dict:
+    """安全随机抽签;可持久化时写入 drawings 记录(登录用户归属本人)。"""
     _reject_injection(body.question)
     no = store.random_no()
     sign = store.get(no)
@@ -57,7 +57,12 @@ def draw(body: DrawRequest) -> dict:
     if db_ready():
         try:
             with SessionLocal() as db:
-                row = Drawing(sign_no=no, category=body.category, question=body.question)
+                row = Drawing(
+                    sign_no=no,
+                    category=body.category,
+                    question=body.question,
+                    user_id=user.id if user else None,
+                )
                 db.add(row)
                 db.commit()
                 drawing_id = row.id
@@ -68,7 +73,7 @@ def draw(body: DrawRequest) -> dict:
 
 
 def _persist(
-    body: InterpretRequest, model: str, content: str
+    body: InterpretRequest, user_id: int | None, model: str, content: str
 ) -> dict[str, int]:
     """流式结束后落库:首答写 readings,追问写 messages。返回自身 id 便于前端续聊。"""
     with SessionLocal() as db:
@@ -85,7 +90,12 @@ def _persist(
 
         drawing_id = body.drawing_id
         if not drawing_id:
-            row = Drawing(sign_no=body.sign_no, category=body.category, question=body.question)
+            row = Drawing(
+                sign_no=body.sign_no,
+                category=body.category,
+                question=body.question,
+                user_id=user_id,
+            )
             db.add(row)
             db.flush()
             drawing_id = row.id
@@ -98,8 +108,9 @@ def _persist(
 
 
 @router.post("/interpret")
-def interpret(body: InterpretRequest) -> StreamingResponse:
+def interpret(body: InterpretRequest, user: User | None = Depends(current_user_optional)) -> StreamingResponse:
     _reject_injection(body.question, *[m.content for m in body.history])
+    uid = user.id if user else None
 
     sign = store.get(body.sign_no)
     if sign is None:
@@ -128,7 +139,7 @@ def interpret(body: InterpretRequest) -> StreamingResponse:
         done: dict[str, Any] = {"done": True, "model": model_name}
         if db_ready():
             try:
-                done.update(_persist(body, model_name, content))
+                done.update(_persist(body, uid, model_name, content))
             except Exception as exc:  # noqa: BLE001 落库失败不影响已生成的解读
                 logger.warning("解签落库失败: %s", exc)
         yield _sse(done)
@@ -138,14 +149,17 @@ def interpret(body: InterpretRequest) -> StreamingResponse:
 
 
 @router.get("/history")
-def history(limit: int = 20) -> dict:
-    """最近的抽签与解签记录(本地单人使用场景,暂不区分用户)。"""
+def history(user: User = Depends(require_user), limit: int = 20) -> dict:
+    """当前登录用户的抽签与解签记录(仅本人可见,需登录)。"""
     limit = max(1, min(limit, 100))
     if not db_ready():
         raise HTTPException(status_code=503, detail="数据库不可用")
     with SessionLocal() as db:
         drawings = db.scalars(
-            select(Drawing).order_by(Drawing.id.desc()).limit(limit)
+            select(Drawing)
+            .where(Drawing.user_id == user.id)
+            .order_by(Drawing.id.desc())
+            .limit(limit)
         ).all()
         items = []
         for d in drawings:

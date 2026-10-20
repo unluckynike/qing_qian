@@ -6,6 +6,7 @@ export interface SignBrief {
   no: number
   title: string
   ancient: string
+  lucky?: string
 }
 
 export interface SignDetail extends SignBrief {
@@ -18,6 +19,8 @@ export interface SignDetail extends SignBrief {
   vernacular: { poem: string[]; jieyue: string }
   categories: Record<string, string>
   source_url: string
+  lucky?: string
+  lucky_tone?: string
 }
 
 export interface DrawResult {
@@ -84,13 +87,13 @@ export function fetchSign(no: number): Promise<SignDetail> {
 export function drawSign(payload: { category?: string; question?: string }): Promise<DrawResult> {
   return request('/draw', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...userHeaders() },
     body: JSON.stringify(payload),
   })
 }
 
 export function fetchHistory(limit = 30): Promise<{ items: HistoryItem[] }> {
-  return request(`/history?limit=${limit}`)
+  return request(`/history?limit=${limit}`, { headers: userHeaders() })
 }
 
 /**
@@ -107,7 +110,7 @@ export async function streamInterpret(
 ): Promise<void> {
   const resp = await fetch(BASE + '/interpret', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...userHeaders() },
     body: JSON.stringify(payload),
     signal,
   })
@@ -172,6 +175,56 @@ export function parseAiSections(text: string): { title: string | null; body: str
   return out
 }
 
+/* ==================== 普通用户(注册/登录) ==================== */
+
+export interface AuthUser {
+  id: number
+  username: string
+  nickname: string
+  created_at: string | null
+}
+
+const USER_TOKEN_KEY = 'qq_user_token'
+
+export function getUserToken(): string {
+  return localStorage.getItem(USER_TOKEN_KEY) ?? ''
+}
+
+export function setUserToken(token: string): void {
+  if (token) localStorage.setItem(USER_TOKEN_KEY, token)
+  else localStorage.removeItem(USER_TOKEN_KEY)
+}
+
+/** 所有需要"以当前用户身份"的请求都带上此头(未登录则为空)。 */
+export function userHeaders(): Record<string, string> {
+  const t = getUserToken()
+  return t ? { Authorization: `Bearer ${t}` } : {}
+}
+
+export function authRegister(
+  username: string,
+  password: string,
+  nickname?: string,
+): Promise<{ token: string; user: AuthUser }> {
+  return request('/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password, nickname: nickname || undefined }),
+  })
+}
+
+export function authLogin(username: string, password: string): Promise<{ token: string; user: AuthUser }> {
+  return request('/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+}
+
+export function authMe(): Promise<{ user: AuthUser }> {
+  return request('/auth/me', { headers: userHeaders() })
+}
+
 /* ==================== 后台管理 ==================== */
 
 const ADMIN_TOKEN_KEY = 'qq_admin_token'
@@ -222,6 +275,7 @@ export interface AdminSettings {
   llm_model: string
   llm_temperature: number
   llm_max_tokens: number
+  llm_thinking: string
   llm_api_key_set: boolean
   llm_api_key_masked: string
 }

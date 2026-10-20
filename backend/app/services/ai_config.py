@@ -10,7 +10,7 @@ from ..orm import Setting
 
 logger = logging.getLogger(__name__)
 
-AI_FIELDS = ("llm_api_base", "llm_api_key", "llm_model", "llm_temperature", "llm_max_tokens")
+AI_FIELDS = ("llm_api_base", "llm_api_key", "llm_model", "llm_temperature", "llm_max_tokens", "llm_thinking")
 
 
 def get_ai_config() -> dict:
@@ -21,6 +21,7 @@ def get_ai_config() -> dict:
         "llm_model": settings.llm_model,
         "llm_temperature": settings.llm_temperature,
         "llm_max_tokens": settings.llm_max_tokens,
+        "llm_thinking": settings.llm_thinking,
     }
     if db_ready():
         try:

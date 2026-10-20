@@ -86,6 +86,7 @@ class SettingsBody(BaseModel):
     llm_model: str | None = Field(default=None, max_length=64)
     llm_temperature: float | None = Field(default=None, ge=0, le=2)
     llm_max_tokens: int | None = Field(default=None, ge=16, le=8192)
+    llm_thinking: str | None = Field(default=None, max_length=16, description='""=默认,"disabled"=关闭思考')
 
 
 # ---------- 登录 ----------
@@ -224,6 +225,7 @@ def read_settings() -> dict:
         "llm_model": cfg["llm_model"],
         "llm_temperature": cfg["llm_temperature"],
         "llm_max_tokens": cfg["llm_max_tokens"],
+        "llm_thinking": cfg.get("llm_thinking", ""),
         "llm_api_key_set": bool(key),
         "llm_api_key_masked": mask_key(key),
     }

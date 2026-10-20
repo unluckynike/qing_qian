@@ -105,6 +105,14 @@ const scrollBox = ref<HTMLElement | null>(null)
 const aiBlocks = computed(() => parseAiSections(aiText.value))
 const catList = computed(() => Object.entries(sign.value?.categories ?? {}))
 
+/** 基调徽章配色:上上/上吉→朱金;中吉/中平→墨金;中下/下下→青灰 */
+const luckyClass = computed(() => {
+  const l = sign.value?.lucky || ''
+  if (l.startsWith('上')) return 'lv-shang'
+  if (l.startsWith('中下') || l.startsWith('下')) return 'lv-xia'
+  return 'lv-zhong'
+})
+
 async function startInterpret() {
   if (!sign.value || aiState.value === 'streaming') return
   aiState.value = 'streaming'
@@ -210,6 +218,7 @@ async function sendFollowup() {
       <div class="plaque-head">
         <span class="plaque-no">吕祖灵签</span>
         <h1 class="plaque-title">{{ sign.title }}</h1>
+        <span v-if="sign.lucky" class="lucky-badge" :class="luckyClass" :title="sign.lucky_tone || ''">{{ sign.lucky }}</span>
         <span v-if="sign.ancient" class="plaque-ancient">典故 · {{ sign.ancient }}</span>
       </div>
       <div class="poem-frame">

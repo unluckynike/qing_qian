@@ -1,4 +1,22 @@
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { auth, clearUserSession, refreshMe } from './store/auth'
+
+const route = useRoute()
+const router = useRouter()
+const menuOpen = ref(false)
+
+const displayName = computed(() => auth.user?.nickname || auth.user?.username || '')
+
+onMounted(refreshMe)
+watch(() => route.fullPath, () => (menuOpen.value = false))
+
+function logout() {
+  clearUserSession()
+  menuOpen.value = false
+  router.push('/')
+}
 </script>
 
 <template>
@@ -11,12 +29,24 @@
           <span class="brand-sub">吕祖灵签</span>
         </span>
       </router-link>
+
       <nav class="nav">
         <router-link to="/">求 签</router-link>
         <router-link to="/library">签文库</router-link>
-        <router-link to="/history">签事记</router-link>
-        <router-link to="/admin">管理</router-link>
+        <router-link v-if="auth.user" to="/history">签事记</router-link>
+        <router-link v-if="auth.isAdmin" to="/admin">管理</router-link>
       </nav>
+
+      <div class="nav-auth">
+        <router-link v-if="!auth.user" to="/login" class="nav-cta">登录 / 注册</router-link>
+        <div v-else class="user-menu">
+          <button class="user-chip" @click="menuOpen = !menuOpen">{{ displayName }} ▾</button>
+          <div v-if="menuOpen" class="user-drop">
+            <router-link to="/history">我的签事记</router-link>
+            <a href="javascript:;" @click="logout">退出登录</a>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 

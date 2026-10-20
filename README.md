@@ -21,6 +21,7 @@
 ```
 qing_qian/
 ├── DESIGN.md                    # 设计蓝图(架构/数据/API/AI 全案)
+├── ARCHITECTURE.md              # 系统架构设计与评估(含响应式规范)
 ├── docker-compose.yml           # PostgreSQL 16
 ├── backend/
 │   ├── app/                     # FastAPI 应用(routers/services/orm)
@@ -69,6 +70,7 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | `LLM_TEMPERATURE` / `LLM_MAX_TOKENS` | 解签参数 | 0.8 / 1200 |
 | `ADMIN_USERNAME` / `ADMIN_PASSWORD` | **后台管理账号**(密码为空时后台接口不可用) | admin / 空 |
 | `ADMIN_TOKEN_HOURS` | 后台登录有效期(小时) | 12 |
+| `USER_SECRET` / `USER_TOKEN_DAYS` | 普通用户会话签名密钥 / 有效期(天) | 空(示例) / 7 |
 
 **优雅降级**:未配置 `LLM_API_KEY` 时,`/api/interpret` 返回 503 并提示配置方式;前端隐藏入口并展示提示条,签文阅读不受影响。数据库不可用时同样降级(抽签不落库)。
 
@@ -81,7 +83,10 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | GET | `/api/signs/{no}` | 单签完整详情 |
 | POST | `/api/draw` | 安全随机抽签 → `{drawing_id, sign}` |
 | POST | `/api/interpret` | AI 解签,SSE 流式;支持追问(带 `reading_id` + `history`) |
-| GET | `/api/history` | 最近抽签与解签记录 |
+| GET | `/api/history` | 当前用户的抽签与解签记录(**需登录**,仅本人可见) |
+| POST | `/api/auth/register` | 用户注册(用户名+密码 → 令牌) |
+| POST | `/api/auth/login` | 用户登录 |
+| GET | `/api/auth/me` | 当前用户信息 |
 | POST | `/api/admin/login` | 后台登录(换取令牌) |
 | GET/PUT/POST/DELETE | `/api/admin/*` | 后台管理:概览 / 签文记录 / 用户 / AI 配置(需 Bearer 令牌) |
 
@@ -97,6 +102,18 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | AI 配置 | base_url / 模型 / 温度 / 输出上限 / API Key,保存即生效,支持连通性测试;密钥仅存本机数据库且脱敏展示 |
 
 AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(或删除行)即回退到 .env。
+
+## 用户体系
+
+| 身份 | 可见菜单 | 行为说明 |
+|---|---|---|
+| 游客 | 求签 · 签文库 · 登录/注册 | 可直接抽签解签;记录**不归属个人**(仅后台可见),签事记不可见 |
+| 普通用户 | 求签 · 签文库 · 签事记 · 个人菜单 | 注册/登录后:抽签与解签记录归属本人,**签事记仅自己可见** |
+| 管理员 | 普通用户全部 + 管理 | 后台管理(独立账号,见上节) |
+
+- 注册即开通:用户名(3-32 位字母/数字/下划线)+ 密码(≥6 位);密码以 **PBKDF2-SHA256 加盐**存储,会话为 HMAC 签名令牌(默认 7 天,`USER_SECRET` 签名);
+- 抽签、解签、签事记请求自动携带令牌;未登录访客的签事记会引导至登录页(登录后回跳);
+- 手机号短信验证码为后续可选项(需短信服务商,见 [ARCHITECTURE.md](ARCHITECTURE.md) 演进路径);当前版本为无短信的账号密码方案。
 
 SSE 事件:`data: {"delta": "…"}` 逐段 → `data: {"done": true, "reading_id": …}` → `data: [DONE]`。
 解签落库:首答写 `readings`,追问写 `messages`(每次调用记录 `model` 与 `prompt_version`)。

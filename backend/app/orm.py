@@ -22,13 +22,17 @@ from .db import Base
 
 class User(Base):
     __tablename__ = "users"
-    __table_args__ = {"comment": "用户表(登录体系二期启用;当前匿名模式不写入)"}
+    __table_args__ = {"comment": "用户表(用户名+密码注册;openid 为第三方登录预留)"}
 
     id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment="主键")
+    username: Mapped[str | None] = mapped_column(
+        String(32), unique=True, comment="用户名(3-32位字母/数字/下划线)"
+    )
+    password_hash: Mapped[str | None] = mapped_column(Text, comment="密码哈希(PBKDF2-SHA256 含盐)")
     openid: Mapped[str | None] = mapped_column(
         String(64), unique=True, comment="第三方登录标识(openid,预留)"
     )
-    nickname: Mapped[str | None] = mapped_column(String(64), comment="昵称")
+    nickname: Mapped[str | None] = mapped_column(String(24), comment="昵称")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), comment="创建时间"
     )
