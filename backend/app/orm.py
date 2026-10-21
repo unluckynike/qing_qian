@@ -7,6 +7,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     BigInteger,
+    Boolean,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -33,6 +34,9 @@ class User(Base):
         String(64), unique=True, comment="第三方登录标识(openid,预留)"
     )
     nickname: Mapped[str | None] = mapped_column(String(24), comment="昵称")
+    is_active: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default="true", comment="账号状态(true=启用,false=禁用)"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), comment="创建时间"
     )
@@ -123,4 +127,28 @@ class Setting(Base):
     value: Mapped[str | None] = mapped_column(Text, comment="配置值(字符串;温度/上限按数字解析)")
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="最后修改时间"
+    )
+
+
+class LoginLog(Base):
+    """登录/注册事件日志(含失败尝试;后台"登录日志"页展示)。"""
+
+    __tablename__ = "login_logs"
+    __table_args__ = (
+        CheckConstraint("role IN ('user','admin')", name="ck_login_logs_role", comment="身份仅限 user/admin"),
+        {"comment": "登录与注册事件日志(成功/失败均记录)"},
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment="主键")
+    username: Mapped[str] = mapped_column(String(32), nullable=False, comment="尝试的用户名")
+    role: Mapped[str] = mapped_column(String(16), nullable=False, comment="身份:user=普通用户 / admin=管理员")
+    action: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="login", comment="事件类型:login=登录 / register=注册"
+    )
+    success: Mapped[bool] = mapped_column(Boolean, nullable=False, comment="是否成功")
+    reason: Mapped[str | None] = mapped_column(String(64), comment="失败原因(成功时为空)")
+    ip: Mapped[str | None] = mapped_column(String(64), comment="来源 IP(取 X-Forwarded-For 首个,否则直连地址)")
+    user_agent: Mapped[str | None] = mapped_column(String(256), comment="User-Agent(截断 256)")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, comment="发生时间"
     )

@@ -85,8 +85,11 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | POST | `/api/interpret` | AI 解签,SSE 流式;支持追问(带 `reading_id` + `history`) |
 | GET | `/api/history` | 当前用户的抽签与解签记录(**需登录**,仅本人可见) |
 | POST | `/api/auth/register` | 用户注册(用户名+密码 → 令牌) |
-| POST | `/api/auth/login` | 用户登录 |
+| POST | `/api/auth/login` | **统一登录入口**(管理员/普通用户自动识别,返回 `role`) |
 | GET | `/api/auth/me` | 当前用户信息 |
+| POST | `/api/admin/users/{id}/reset-password` | 重置用户密码 |
+| PATCH | `/api/admin/users/{id}/status` | 禁用 / 启用用户 |
+| GET | `/api/admin/login-logs` | 登录/注册事件日志(含失败原因与 IP) |
 | POST | `/api/admin/login` | 后台登录(换取令牌) |
 | GET/PUT/POST/DELETE | `/api/admin/*` | 后台管理:概览 / 签文记录 / 用户 / AI 配置(需 Bearer 令牌) |
 
@@ -98,8 +101,11 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 |---|---|
 | 概览 | 抽签 / 解签 / 追问 / 用户计数、今日抽签、AI 配置状态 |
 | 签文记录 | 最近抽签与解签记录(分页),可删除(级联删除对应解签与追问) |
-| 用户管理 | 用户列表与删除(历史抽签记录保留) |
-| AI 配置 | base_url / 模型 / 温度 / 输出上限 / API Key,保存即生效,支持连通性测试;密钥仅存本机数据库且脱敏展示 |
+| 用户管理 | 用户搜索、重置密码、**禁用/启用**(禁用后即刻失去访问)、删除;含抽签数与最近活跃 |
+| 登录日志 | 登录与注册事件(成功/失败、失败原因、IP、设备),支持"只看失败"筛选 |
+| AI 配置 | base_url / 模型 / 温度 / 输出上限 / 思考模式 / API Key,保存即生效,支持连通性测试 |
+
+**统一登录入口**:管理员与普通用户共用 `/#/login`,后端自动识别账号类型(管理员为 .env 单账号,普通用户为注册账号)。
 
 AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(或删除行)即回退到 .env。
 
@@ -113,6 +119,7 @@ AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(�
 
 - 注册即开通:用户名(3-32 位字母/数字/下划线)+ 密码(≥6 位);密码以 **PBKDF2-SHA256 加盐**存储,会话为 HMAC 签名令牌(默认 7 天,`USER_SECRET` 签名);
 - 抽签、解签、签事记请求自动携带令牌;未登录访客的签事记会引导至登录页(登录后回跳);
+- 登录/注册事件(含失败尝试)写入登录日志表,管理员可在后台查看;账号被禁用后令牌立即失效;
 - 手机号短信验证码为后续可选项(需短信服务商,见 [ARCHITECTURE.md](ARCHITECTURE.md) 演进路径);当前版本为无短信的账号密码方案。
 
 SSE 事件:`data: {"delta": "…"}` 逐段 → `data: {"done": true, "reading_id": …}` → `data: [DONE]`。

@@ -95,11 +95,12 @@
 | AI 运行时配置 | settings 表 | 前台后台共享、即时生效 |
 
 ```
-users(id, openid, nickname, created_at)                       -- 登录体系预留
+users(id, username UNIQUE, password_hash, openid, nickname, is_active, created_at)   -- 用户名+密码注册
 drawings(id, user_id→users, sign_no 1-100, category, question, created_at)
 readings(id, drawing_id→drawings CASCADE, model, prompt_version, content, created_at)
 messages(id, reading_id→readings CASCADE, role user/assistant, content, created_at)
 settings(key PK, value, updated_at)                           -- AI 配置(优先于 .env)
+login_logs(id, username, role user/admin, action login/register, success, reason, ip, user_agent, created_at)
 ```
 
 全部表/列/约束带中文注释(建表自动写注释;存量库用 `scripts/apply_comments.py` 同步)。

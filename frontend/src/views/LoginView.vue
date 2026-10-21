@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { authLogin, authRegister } from '../api'
-import { setUserSession } from '../store/auth'
+import { authLogin, authRegister, setAdminToken } from '../api'
+import { refreshAdminFlag, setUserSession } from '../store/auth'
 
 const route = useRoute()
 const router = useRouter()
@@ -41,7 +41,13 @@ async function submit() {
     const data = isRegister.value
       ? await authRegister(username, form.password, form.nickname.trim() || undefined)
       : await authLogin(username, form.password)
-    setUserSession(data.token, data.user)
+    if (data.role === 'admin') {
+      // 统一入口:管理员身份写入后台令牌,顶栏显示"管理员"
+      setAdminToken(data.token)
+      refreshAdminFlag()
+    } else if (data.user) {
+      setUserSession(data.token, data.user)
+    }
     const next = typeof route.query.next === 'string' ? route.query.next : '/'
     router.push(next)
   } catch (e) {
@@ -120,6 +126,9 @@ async function submit() {
       </p>
       <p class="muted center" style="margin: 8px 0 0; font-size: 12.5px">
         注册登录后:抽签记录自动归属本人,签事记仅自己可见
+      </p>
+      <p class="muted center" style="margin: 6px 0 0; font-size: 12.5px">
+        管理员账号与普通用户共用此入口,登录后自动识别身份
       </p>
     </section>
   </div>

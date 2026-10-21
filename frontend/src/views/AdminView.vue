@@ -6,8 +6,10 @@ import {
   adminDeleteUser,
   adminDrawings,
   adminGetSettings,
-  adminLogin,
+  adminLoginLogs,
   adminOverview,
+  adminResetUserPassword,
+  adminSetUserStatus,
   adminTestLLM,
   adminUpdateSettings,
   adminUsers,
@@ -17,27 +19,45 @@ import {
   type AdminOverview,
   type AdminSettings,
   type AdminUser,
+  type LoginLogItem,
 } from '../api'
 
 const PAGE_SIZE = 20
+const LOG_PAGE_SIZE = 50
+
+type TabKey = 'overview' | 'drawings' | 'users' | 'logs' | 'settings'
+const tabs: { key: TabKey; label: string }[] = [
+  { key: 'overview', label: '概览' },
+  { key: 'drawings', label: '签文记录' },
+  { key: 'users', label: '用户管理' },
+  { key: 'logs', label: '登录日志' },
+  { key: 'settings', label: 'AI 配置' },
+]
 
 const token = ref(getAdminToken())
-const loginForm = reactive({ username: 'admin', password: '' })
-const loginError = ref('')
-const loggingIn = ref(false)
-
-const tab = ref<'overview' | 'drawings' | 'users' | 'settings'>('overview')
+const tab = ref<TabKey>('overview')
 const error = ref('')
 const notice = ref('')
 const busy = ref(false)
 
 const overview = ref<AdminOverview | null>(null)
+
 const drawings = ref<AdminDrawing[]>([])
 const drawingTotal = ref(0)
 const drawingPage = ref(0)
-const users = ref<AdminUser[]>([])
-const settings = ref<AdminSettings | null>(null)
 
+const users = ref<AdminUser[]>([])
+const userQuery = ref('')
+const appliedQuery = ref('')
+const resetUserId = ref<number | null>(null)
+const resetPassword = ref('')
+
+const logs = ref<LoginLogItem[]>([])
+const logTotal = ref(0)
+const logPage = ref(0)
+const logOnlyFailed = ref(false)
+
+const settings = ref<AdminSettings | null>(null)
 const aiForm = reactive({
   llm_api_base: '',
   llm_model: '',
@@ -54,28 +74,13 @@ function msg(e: unknown): string {
 
 function handleAuthError(e: unknown) {
   const m = msg(e)
-  if (m.includes('登录')) {
+  if (m.includes('登录已过期') || m.includes('未登录')) {
     setAdminToken('')
     token.value = ''
-    loginError.value = m
+    refreshAdminFlag()
+    error.value = '登录已过期,请重新登录'
   } else {
     error.value = m
-  }
-}
-
-async function doLogin() {
-  if (loggingIn.value) return
-  loggingIn.value = true
-  loginError.value = ''
-  try {
-    await adminLogin(loginForm.username.trim(), loginForm.password)
-    token.value = getAdminToken()
-    refreshAdminFlag()
-    await loadTab()
-  } catch (e) {
-    loginError.value = msg(e)
-  } finally {
-    loggingIn.value = false
   }
 }
 
@@ -83,7 +88,6 @@ function logout() {
   setAdminToken('')
   token.value = ''
   refreshAdminFlag()
-  loginForm.password = ''
 }
 
 async function loadTab() {
@@ -97,7 +101,9 @@ async function loadTab() {
     } else if (tab.value === 'drawings') {
       await loadDrawings(0)
     } else if (tab.value === 'users') {
-      users.value = (await adminUsers()).items
+      await loadUsers()
+    } else if (tab.value === 'logs') {
+      await loadLogs(0)
     } else if (tab.value === 'settings') {
       await loadSettings()
     }
@@ -108,6 +114,12 @@ async function loadTab() {
   }
 }
 
+watch(tab, loadTab)
+onMounted(() => {
+  if (token.value) loadTab()
+})
+
+// ---------- 签文记录 ----------
 async function loadDrawings(page: number) {
   const data = await adminDrawings(PAGE_SIZE, page * PAGE_SIZE)
   drawings.value = data.items
@@ -115,31 +127,90 @@ async function loadDrawings(page: number) {
   drawingPage.value = page
 }
 
-watch(tab, loadTab)
-onMounted(() => {
-  if (token.value) loadTab()
-})
-
 async function removeDrawing(item: AdminDrawing) {
   if (!window.confirm(`删除第 ${item.sign_no} 签的抽签记录?\n关联的解签与追问记录会一并删除,不可恢复。`)) return
   try {
     await adminDeleteDrawing(item.drawing_id)
     notice.value = `已删除记录 #${item.drawing_id}`
-    await loadTab()
+    await loadDrawings(drawingPage.value)
   } catch (e) {
     handleAuthError(e)
   }
 }
 
-async function removeUser(item: AdminUser) {
-  if (!window.confirm(`删除用户 #${item.id}?\n其历史抽签记录会保留(转为匿名)。`)) return
+// ---------- 用户管理 ----------
+async function loadUsers() {
+  users.value = (await adminUsers(appliedQuery.value || undefined)).items
+  resetUserId.value = null
+}
+
+function searchUsers() {
+  appliedQuery.value = userQuery.value.trim()
+  loadUsers().catch(handleAuthError)
+}
+
+function clearSearch() {
+  userQuery.value = ''
+  appliedQuery.value = ''
+  loadUsers().catch(handleAuthError)
+}
+
+function askReset(u: AdminUser) {
+  resetUserId.value = resetUserId.value === u.id ? null : u.id
+  resetPassword.value = ''
+}
+
+async function doResetPassword(u: AdminUser) {
+  if (resetPassword.value.length < 6) {
+    error.value = '新密码至少 6 位'
+    return
+  }
   try {
-    await adminDeleteUser(item.id)
-    notice.value = `已删除用户 #${item.id}`
-    await loadTab()
+    await adminResetUserPassword(u.id, resetPassword.value)
+    notice.value = `已重置「${u.username}」的密码`
+    resetUserId.value = null
+    resetPassword.value = ''
   } catch (e) {
     handleAuthError(e)
   }
+}
+
+async function toggleStatus(u: AdminUser) {
+  const to = !u.is_active
+  const word = to ? '启用' : '禁用'
+  const extra = to ? '' : '\n禁用后该用户将无法登录,已登录会话也会立即失效。'
+  if (!window.confirm(`确定${word}用户「${u.username}」?${extra}`)) return
+  try {
+    await adminSetUserStatus(u.id, to)
+    notice.value = `已${word}「${u.username}」`
+    await loadUsers()
+  } catch (e) {
+    handleAuthError(e)
+  }
+}
+
+async function removeUser(u: AdminUser) {
+  if (!window.confirm(`删除用户「${u.username}」?\n其历史抽签记录会保留(转为匿名)。`)) return
+  try {
+    await adminDeleteUser(u.id)
+    notice.value = `已删除用户「${u.username}」`
+    await loadUsers()
+  } catch (e) {
+    handleAuthError(e)
+  }
+}
+
+// ---------- 登录日志 ----------
+async function loadLogs(page: number) {
+  const data = await adminLoginLogs(LOG_PAGE_SIZE, page * LOG_PAGE_SIZE, logOnlyFailed.value)
+  logs.value = data.items
+  logTotal.value = data.total
+  logPage.value = page
+}
+
+function toggleOnlyFailed() {
+  logOnlyFailed.value = !logOnlyFailed.value
+  loadLogs(0).catch(handleAuthError)
 }
 
 // ---------- AI 配置 ----------
@@ -212,37 +283,22 @@ function fmtDate(iso: string | null): string {
 }
 
 const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
+const logTotalPages = () => Math.max(1, Math.ceil(logTotal.value / LOG_PAGE_SIZE))
 </script>
 
 <template>
-  <!-- 登录 -->
+  <!-- 未登录:引导到统一登录入口 -->
   <div v-if="!token" class="admin-login">
     <section class="panel panel-ornate">
-      <div class="sec-title" style="justify-content: center">后 台 登 录</div>
-      <form @submit.prevent="doLogin">
-        <label class="form-label" for="admin-username">管理员</label>
-        <input
-          id="admin-username"
-          v-model="loginForm.username"
-          class="input"
-          maxlength="64"
-          autocomplete="username"
-        />
-        <label class="form-label" style="margin-top: 12px" for="admin-password">密码</label>
-        <input
-          id="admin-password"
-          v-model="loginForm.password"
-          class="input"
-          type="password"
-          maxlength="128"
-          autocomplete="current-password"
-          placeholder="在 backend/.env 配置 ADMIN_PASSWORD"
-        />
-        <div v-if="loginError" class="banner error" style="margin: 12px 0 0">{{ loginError }}</div>
-        <button class="btn" style="width: 100%; margin-top: 16px" :disabled="loggingIn" type="submit">
-          {{ loggingIn ? '登 录 中…' : '登 录' }}
-        </button>
-      </form>
+      <div class="sec-title" style="justify-content: center">后 台 管 理</div>
+      <p class="center muted" style="margin: 6px 0 18px">
+        请使用管理员账号登录<br />(与前台共用登录入口,自动识别身份)
+      </p>
+      <router-link
+        class="btn"
+        style="display: block; text-align: center; text-decoration: none; box-sizing: border-box"
+        to="/login?next=/admin"
+      >去 登 录</router-link>
     </section>
   </div>
 
@@ -254,10 +310,13 @@ const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
     </div>
 
     <div class="tabs">
-      <button class="tab" :class="{ active: tab === 'overview' }" @click="tab = 'overview'">概览</button>
-      <button class="tab" :class="{ active: tab === 'drawings' }" @click="tab = 'drawings'">签文记录</button>
-      <button class="tab" :class="{ active: tab === 'users' }" @click="tab = 'users'">用户管理</button>
-      <button class="tab" :class="{ active: tab === 'settings' }" @click="tab = 'settings'">AI 配置</button>
+      <button
+        v-for="t in tabs"
+        :key="t.key"
+        class="tab"
+        :class="{ active: tab === t.key }"
+        @click="tab = t.key"
+      >{{ t.label }}</button>
     </div>
 
     <div v-if="error" class="banner error">{{ error }}</div>
@@ -315,24 +374,101 @@ const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
 
     <!-- 用户管理 -->
     <div v-else-if="tab === 'users'" class="panel" style="padding: 14px 18px">
-      <p class="muted" style="margin: 0 0 10px">
-        当前为匿名模式,用户表通常为空;登录体系上线后此处管理注册用户。删除用户不会删除其历史抽签记录。
-      </p>
+      <div class="admin-toolbar">
+        <input
+          v-model="userQuery"
+          class="input"
+          style="max-width: 240px"
+          placeholder="搜索用户名 / 昵称"
+          @keyup.enter="searchUsers"
+        />
+        <button class="btn ghost small" @click="searchUsers">搜 索</button>
+        <button v-if="appliedQuery" class="btn-link" @click="clearSearch">清空「{{ appliedQuery }}」</button>
+        <span class="muted" style="margin-left: auto">共 {{ users.length }} 位用户</span>
+      </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>#</th><th>openid</th><th>昵称</th><th>注册时间</th><th>抽签数</th><th>操作</th></tr></thead>
-          <tbody>
-            <tr v-for="u in users" :key="u.id">
-              <td>{{ u.id }}</td>
-              <td>{{ u.openid || '—' }}</td>
-              <td>{{ u.nickname || '—' }}</td>
-              <td class="nowrap">{{ fmtDate(u.created_at) }}</td>
-              <td>{{ u.drawings }}</td>
-              <td><button class="btn-link danger" @click="removeUser(u)">删除</button></td>
+          <thead>
+            <tr>
+              <th>#</th><th>用户名</th><th>昵称</th><th>注册时间</th><th>抽签数</th><th>最近抽签</th><th>状态</th><th>操作</th>
             </tr>
-            <tr v-if="!users.length"><td colspan="6" class="center muted">暂无用户</td></tr>
+          </thead>
+          <tbody>
+            <template v-for="u in users" :key="u.id">
+              <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.username || '—' }}</td>
+                <td>{{ u.nickname || '—' }}</td>
+                <td class="nowrap">{{ fmtDate(u.created_at) }}</td>
+                <td>{{ u.drawings }}</td>
+                <td class="nowrap">{{ fmtDate(u.last_drawing_at) }}</td>
+                <td class="nowrap">
+                  <span class="status-dot" :class="u.is_active ? 'on' : 'off'"></span>
+                  {{ u.is_active ? '启用' : '禁用' }}
+                </td>
+                <td class="nowrap">
+                  <button class="btn-link" @click="askReset(u)">重置密码</button>
+                  <button class="btn-link" @click="toggleStatus(u)">{{ u.is_active ? '禁用' : '启用' }}</button>
+                  <button class="btn-link danger" @click="removeUser(u)">删除</button>
+                </td>
+              </tr>
+              <tr v-if="resetUserId === u.id" class="reset-row">
+                <td colspan="8">
+                  <div class="reset-form">
+                    <span class="muted">为「{{ u.username }}」设置新密码:</span>
+                    <input
+                      v-model="resetPassword"
+                      class="input"
+                      type="password"
+                      maxlength="64"
+                      placeholder="新密码(≥6 位)"
+                      style="max-width: 220px"
+                      @keyup.enter="doResetPassword(u)"
+                    />
+                    <button class="btn small" @click="doResetPassword(u)">保 存</button>
+                    <button class="btn ghost small" @click="resetUserId = null">取 消</button>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr v-if="!users.length"><td colspan="8" class="center muted">暂无用户</td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- 登录日志 -->
+    <div v-else-if="tab === 'logs'" class="panel" style="padding: 14px 18px">
+      <div class="admin-toolbar">
+        <button class="chip" :class="{ active: logOnlyFailed }" @click="toggleOnlyFailed">只看失败</button>
+        <span class="muted" style="margin-left: auto">共 {{ logTotal }} 条事件</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>身份</th><th>用户名</th><th>事件</th><th>结果</th><th>IP</th><th>设备</th></tr>
+          </thead>
+          <tbody>
+            <tr v-for="l in logs" :key="l.id">
+              <td class="nowrap">{{ fmtDate(l.created_at) }}</td>
+              <td><span class="role-chip" :class="l.role">{{ l.role === 'admin' ? '管理员' : '用户' }}</span></td>
+              <td>{{ l.username }}</td>
+              <td>{{ l.action === 'register' ? '注册' : '登录' }}</td>
+              <td class="nowrap">
+                <span class="status-dot" :class="l.success ? 'on' : 'fail'"></span>
+                {{ l.success ? '成功' : (l.reason || '失败') }}
+              </td>
+              <td class="mono">{{ l.ip || '—' }}</td>
+              <td class="cell-ua" :title="l.user_agent || ''">{{ l.user_agent || '—' }}</td>
+            </tr>
+            <tr v-if="!logs.length"><td colspan="7" class="center muted">暂无日志</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="logTotal > LOG_PAGE_SIZE" class="pager">
+        <button class="btn ghost small" :disabled="logPage === 0" @click="loadLogs(logPage - 1)">上一页</button>
+        <span class="muted">{{ logPage + 1 }} / {{ logTotalPages() }} 页 · 共 {{ logTotal }} 条</span>
+        <button class="btn ghost small" :disabled="logPage + 1 >= logTotalPages()" @click="loadLogs(logPage + 1)">下一页</button>
       </div>
     </div>
 
@@ -398,7 +534,7 @@ const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
 
 <style scoped>
 .admin { display: flex; flex-direction: column; gap: 18px; }
-.admin-login { max-width: 400px; margin: 40px auto 0; }
+.admin-login { max-width: 420px; margin: 40px auto 0; }
 .form-label {
   display: block; font-size: 13px; color: var(--ink-2);
   letter-spacing: 0.08em; margin-bottom: 5px;

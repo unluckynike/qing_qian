@@ -184,6 +184,13 @@ export interface AuthUser {
   created_at: string | null
 }
 
+export interface AuthLoginResult {
+  role: 'user' | 'admin'
+  token: string
+  expires_at: number
+  user?: AuthUser
+}
+
 const USER_TOKEN_KEY = 'qq_user_token'
 
 export function getUserToken(): string {
@@ -205,7 +212,7 @@ export function authRegister(
   username: string,
   password: string,
   nickname?: string,
-): Promise<{ token: string; user: AuthUser }> {
+): Promise<AuthLoginResult> {
   return request('/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -213,7 +220,7 @@ export function authRegister(
   })
 }
 
-export function authLogin(username: string, password: string): Promise<{ token: string; user: AuthUser }> {
+export function authLogin(username: string, password: string): Promise<AuthLoginResult> {
   return request('/auth/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -264,10 +271,24 @@ export interface AdminDrawing {
 
 export interface AdminUser {
   id: number
-  openid: string | null
+  username: string | null
   nickname: string | null
+  is_active: boolean
   created_at: string | null
   drawings: number
+  last_drawing_at: string | null
+}
+
+export interface LoginLogItem {
+  id: number
+  username: string
+  role: 'user' | 'admin'
+  action: string
+  success: boolean
+  reason: string | null
+  ip: string | null
+  user_agent: string | null
+  created_at: string | null
 }
 
 export interface AdminSettings {
@@ -327,12 +348,35 @@ export function adminDeleteDrawing(id: number): Promise<{ ok: boolean }> {
   return adminRequest(`/admin/drawings/${id}`, { method: 'DELETE' })
 }
 
-export function adminUsers(): Promise<{ items: AdminUser[] }> {
-  return adminRequest('/admin/users')
+export function adminUsers(q?: string): Promise<{ items: AdminUser[] }> {
+  const suffix = q && q.trim() ? `?q=${encodeURIComponent(q.trim())}` : ''
+  return adminRequest(`/admin/users${suffix}`)
+}
+
+export function adminResetUserPassword(id: number, password: string): Promise<{ ok: boolean }> {
+  return adminRequest(`/admin/users/${id}/reset-password`, {
+    method: 'POST',
+    body: JSON.stringify({ password }),
+  })
+}
+
+export function adminSetUserStatus(id: number, isActive: boolean): Promise<{ ok: boolean; is_active: boolean }> {
+  return adminRequest(`/admin/users/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ is_active: isActive }),
+  })
 }
 
 export function adminDeleteUser(id: number): Promise<{ ok: boolean }> {
   return adminRequest(`/admin/users/${id}`, { method: 'DELETE' })
+}
+
+export function adminLoginLogs(
+  limit = 50,
+  offset = 0,
+  onlyFailed = false,
+): Promise<{ total: number; items: LoginLogItem[] }> {
+  return adminRequest(`/admin/login-logs?limit=${limit}&offset=${offset}&only_failed=${onlyFailed}`)
 }
 
 export function adminGetSettings(): Promise<AdminSettings> {

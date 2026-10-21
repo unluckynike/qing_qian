@@ -67,7 +67,7 @@ def _parse_token(token: str) -> int | None:
 
 
 def current_user_optional(authorization: str | None = Header(default=None)) -> User | None:
-    """可选登录:带有效用户令牌则返回用户,否则 None(不抛错)。"""
+    """可选登录:带有效用户令牌则返回用户,否则 None(不抛错)。被禁用的账号视为未登录。"""
     if not authorization or not authorization.lower().startswith("bearer "):
         return None
     if not db_ready():
@@ -76,7 +76,10 @@ def current_user_optional(authorization: str | None = Header(default=None)) -> U
     if uid is None:
         return None
     with SessionLocal() as db:
-        return db.get(User, uid)
+        user = db.get(User, uid)
+        if user is not None and not user.is_active:
+            return None
+        return user
 
 
 def require_user(user: User | None = Depends(current_user_optional)) -> User:

@@ -1,6 +1,6 @@
 /** 普通用户会话(轻量响应式 store;令牌存 localStorage)。 */
 import { reactive } from 'vue'
-import { authMe, getAdminToken, getUserToken, setUserToken, type AuthUser } from '../api'
+import { authMe, getAdminToken, getUserToken, setAdminToken, setUserToken, type AuthUser } from '../api'
 
 export const auth = reactive<{
   token: string
@@ -45,4 +45,11 @@ export async function refreshMe(): Promise<void> {
 /** 管理端登录/退出后同步"管理"入口显隐。 */
 export function refreshAdminFlag(): void {
   auth.isAdmin = Boolean(getAdminToken())
+}
+
+/** 一键退出:清除普通用户与管理端两种会话(顶栏"退出登录"使用)。 */
+export function logoutAll(): void {
+  clearUserSession()
+  setAdminToken('')
+  refreshAdminFlag()
 }

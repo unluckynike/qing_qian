@@ -1,19 +1,22 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { auth, clearUserSession, refreshMe } from './store/auth'
+import { auth, logoutAll, refreshMe } from './store/auth'
 
 const route = useRoute()
 const router = useRouter()
 const menuOpen = ref(false)
 
-const displayName = computed(() => auth.user?.nickname || auth.user?.username || '')
+const displayName = computed(() =>
+  auth.user?.nickname || (auth.isAdmin ? '管理员' : ''),
+)
+const showMenu = computed(() => Boolean(auth.user || auth.isAdmin))
 
 onMounted(refreshMe)
 watch(() => route.fullPath, () => (menuOpen.value = false))
 
 function logout() {
-  clearUserSession()
+  logoutAll()
   menuOpen.value = false
   router.push('/')
 }
@@ -38,11 +41,12 @@ function logout() {
       </nav>
 
       <div class="nav-auth">
-        <router-link v-if="!auth.user" to="/login" class="nav-cta">登录 / 注册</router-link>
+        <router-link v-if="!showMenu" to="/login" class="nav-cta">登录 / 注册</router-link>
         <div v-else class="user-menu">
           <button class="user-chip" @click="menuOpen = !menuOpen">{{ displayName }} ▾</button>
           <div v-if="menuOpen" class="user-drop">
-            <router-link to="/history">我的签事记</router-link>
+            <router-link v-if="auth.user" to="/history">我的签事记</router-link>
+            <router-link v-if="auth.isAdmin" to="/admin">后台管理</router-link>
             <a href="javascript:;" @click="logout">退出登录</a>
           </div>
         </div>
@@ -51,11 +55,7 @@ function logout() {
   </header>
 
   <main class="shell" style="padding: 24px 0 40px">
-    <router-view v-slot="{ Component }">
-      <transition name="page" mode="out-in">
-        <component :is="Component" />
-      </transition>
-    </router-view>
+    <router-view />
   </main>
 
   <footer class="footer">
