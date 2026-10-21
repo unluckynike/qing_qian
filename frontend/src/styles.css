@@ -564,3 +564,25 @@ code {
 }
 .reset-row td { background: rgba(168, 128, 58, 0.06); }
 .reset-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+/* ---------- 知识库卡片(后台 AI 配置页) ---------- */
+.kb-card {
+  border: 1px solid var(--line); border-left: 3px solid var(--gold);
+  border-radius: 10px; padding: 14px 16px;
+  background: rgba(255, 252, 244, 0.66);
+}
+.kb-stats { display: flex; gap: 18px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-2); }
+.kb-stats b { font-family: var(--font-song); color: var(--ink); }
+
+/* ---------- 助手问答(后台) ---------- */
+.clickable { cursor: pointer; }
+.cell-answer { max-width: 260px; color: var(--ink-2); font-size: 13.5px; }
+.al-detail { background: rgba(168, 128, 58, 0.06); padding: 14px 16px !important; }
+.al-detail .msg-content { font-size: 14px; line-height: 1.9; color: var(--ink); white-space: normal; }
+.vote-tag {
+  display: inline-block; border-radius: 5px; padding: 1px 8px;
+  font-size: 12px; letter-spacing: 0.06em; border: 1px solid;
+}
+.vote-tag.up { color: #356b41; border-color: rgba(61, 122, 74, 0.5); background: rgba(61, 122, 74, 0.08); }
+.vote-tag.down { color: #8f2a20; border-color: rgba(156, 43, 35, 0.5); background: rgba(156, 43, 35, 0.08); }
+.vote-tag.none { color: var(--ink-3); border-color: var(--line-2); background: transparent; }

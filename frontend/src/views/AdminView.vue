@@ -1,11 +1,15 @@
 <script setup lang="ts">
 import { onMounted, reactive, ref, watch } from 'vue'
 import { refreshAdminFlag } from '../store/auth'
+import { renderRichText } from '../utils/richtext'
 import {
+  adminAssistantLogs,
   adminDeleteDrawing,
   adminDeleteUser,
   adminDrawings,
   adminGetSettings,
+  adminKbRebuild,
+  adminKbStatus,
   adminLoginLogs,
   adminOverview,
   adminResetUserPassword,
@@ -19,18 +23,21 @@ import {
   type AdminOverview,
   type AdminSettings,
   type AdminUser,
+  type AssistantLogItem,
+  type KbStatus,
   type LoginLogItem,
 } from '../api'
 
 const PAGE_SIZE = 20
 const LOG_PAGE_SIZE = 50
 
-type TabKey = 'overview' | 'drawings' | 'users' | 'logs' | 'settings'
+type TabKey = 'overview' | 'drawings' | 'users' | 'logs' | 'assistant' | 'settings'
 const tabs: { key: TabKey; label: string }[] = [
   { key: 'overview', label: '概览' },
   { key: 'drawings', label: '签文记录' },
   { key: 'users', label: '用户管理' },
   { key: 'logs', label: '登录日志' },
+  { key: 'assistant', label: '助手问答' },
   { key: 'settings', label: 'AI 配置' },
 ]
 
@@ -57,13 +64,22 @@ const logTotal = ref(0)
 const logPage = ref(0)
 const logOnlyFailed = ref(false)
 
+const alogs = ref<AssistantLogItem[]>([])
+const alTotal = ref(0)
+const alPage = ref(0)
+const alOnlyBad = ref(false)
+const alStats = ref({ up: 0, down: 0, unrated: 0 })
+const alExpanded = ref<number | null>(null)
+
 const settings = ref<AdminSettings | null>(null)
+const kb = ref<KbStatus | null>(null)
 const aiForm = reactive({
   llm_api_base: '',
   llm_model: '',
   llm_temperature: 0.8,
   llm_max_tokens: 1200,
   llm_thinking: '',
+  embedding_model: '',
   apiKeyInput: '',
 })
 const testResult = ref('')
@@ -104,6 +120,8 @@ async function loadTab() {
       await loadUsers()
     } else if (tab.value === 'logs') {
       await loadLogs(0)
+    } else if (tab.value === 'assistant') {
+      await loadAssistantLogs(0)
     } else if (tab.value === 'settings') {
       await loadSettings()
     }
@@ -213,6 +231,21 @@ function toggleOnlyFailed() {
   loadLogs(0).catch(handleAuthError)
 }
 
+// ---------- 助手问答 ----------
+async function loadAssistantLogs(page: number) {
+  const d = await adminAssistantLogs(LOG_PAGE_SIZE, page * LOG_PAGE_SIZE, alOnlyBad.value)
+  alogs.value = d.items
+  alTotal.value = d.total
+  alStats.value = d.stats
+  alPage.value = page
+  alExpanded.value = null
+}
+
+function toggleAlOnlyBad() {
+  alOnlyBad.value = !alOnlyBad.value
+  loadAssistantLogs(0).catch(handleAuthError)
+}
+
 // ---------- AI 配置 ----------
 async function loadSettings() {
   const s = await adminGetSettings()
@@ -222,8 +255,10 @@ async function loadSettings() {
   aiForm.llm_temperature = s.llm_temperature
   aiForm.llm_max_tokens = s.llm_max_tokens
   aiForm.llm_thinking = s.llm_thinking || ''
+  aiForm.embedding_model = s.embedding_model || ''
   aiForm.apiKeyInput = ''
   testResult.value = ''
+  kb.value = await adminKbStatus()
 }
 
 async function saveSettings() {
@@ -238,11 +273,32 @@ async function saveSettings() {
       llm_temperature: aiForm.llm_temperature,
       llm_max_tokens: aiForm.llm_max_tokens,
       llm_thinking: aiForm.llm_thinking,
+      embedding_model: aiForm.embedding_model.trim(),
     }
     if (aiForm.apiKeyInput.trim()) payload.llm_api_key = aiForm.apiKeyInput.trim()
     settings.value = await adminUpdateSettings(payload)
     aiForm.apiKeyInput = ''
     notice.value = '配置已保存,立即生效(无需重启服务)'
+  } catch (e) {
+    handleAuthError(e)
+  } finally {
+    busy.value = false
+  }
+}
+
+async function rebuildKb() {
+  if (busy.value) return
+  busy.value = true
+  error.value = ''
+  notice.value = ''
+  try {
+    const r = await adminKbRebuild()
+    kb.value = await adminKbStatus()
+    if (r.embedding_error) {
+      notice.value = `知识库已重建(关键词检索):${r.chunks} 个切片;向量化未生效 — ${r.embedding_error}`
+    } else {
+      notice.value = `知识库已重建:${r.chunks} 个切片,检索方式:${r.mode === 'vector' ? '向量' : '关键词'}`
+    }
   } catch (e) {
     handleAuthError(e)
   } finally {
@@ -284,6 +340,7 @@ function fmtDate(iso: string | null): string {
 
 const totalPages = () => Math.max(1, Math.ceil(drawingTotal.value / PAGE_SIZE))
 const logTotalPages = () => Math.max(1, Math.ceil(logTotal.value / LOG_PAGE_SIZE))
+const alTotalPages = () => Math.max(1, Math.ceil(alTotal.value / LOG_PAGE_SIZE))
 </script>
 
 <template>
@@ -472,6 +529,55 @@ const logTotalPages = () => Math.max(1, Math.ceil(logTotal.value / LOG_PAGE_SIZE
       </div>
     </div>
 
+    <!-- 助手问答 -->
+    <div v-else-if="tab === 'assistant'" class="panel" style="padding: 14px 18px">
+      <div class="admin-toolbar">
+        <button class="chip" :class="{ active: alOnlyBad }" @click="toggleAlOnlyBad">只看踩</button>
+        <span class="muted" style="margin-left: auto">
+          共 {{ alTotal }} 条 · 👍 {{ alStats.up }} · 👎 {{ alStats.down }} · 未评 {{ alStats.unrated }}
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>时间</th><th>用户</th><th>问题</th><th>回答</th><th>检索</th><th>评价</th></tr>
+          </thead>
+          <tbody>
+            <template v-for="l in alogs" :key="l.id">
+              <tr class="clickable" @click="alExpanded = alExpanded === l.id ? null : l.id">
+                <td class="nowrap">{{ fmtDate(l.created_at) }}</td>
+                <td class="nowrap">{{ l.user }}</td>
+                <td class="cell-question">{{ l.question }}</td>
+                <td class="cell-answer">
+                  {{ alExpanded === l.id ? '▲ 收起' : l.answer.slice(0, 36) + (l.answer.length > 36 ? '… ▼' : ' ▼') }}
+                </td>
+                <td class="nowrap">{{ l.mode === 'vector' ? '向量' : '关键词' }}</td>
+                <td class="nowrap">
+                  <span class="vote-tag" :class="l.feedback === 1 ? 'up' : l.feedback === -1 ? 'down' : 'none'">
+                    {{ l.feedback === 1 ? '👍 赞' : l.feedback === -1 ? '👎 踩' : '未评' }}
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="alExpanded === l.id">
+                <td colspan="6" class="al-detail">
+                  <div class="msg-content" v-html="renderRichText(l.answer)"></div>
+                  <div v-if="l.sources.length" class="assistant-sources">
+                    参考:<span v-for="s in l.sources" :key="s.section">《{{ s.section }}》</span>
+                  </div>
+                </td>
+              </tr>
+            </template>
+            <tr v-if="!alogs.length"><td colspan="6" class="center muted">暂无问答记录</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="alTotal > LOG_PAGE_SIZE" class="pager">
+        <button class="btn ghost small" :disabled="alPage === 0" @click="loadAssistantLogs(alPage - 1)">上一页</button>
+        <span class="muted">{{ alPage + 1 }} / {{ alTotalPages() }} 页 · 共 {{ alTotal }} 条</span>
+        <button class="btn ghost small" :disabled="alPage + 1 >= alTotalPages()" @click="loadAssistantLogs(alPage + 1)">下一页</button>
+      </div>
+    </div>
+
     <!-- AI 配置 -->
     <div v-else-if="tab === 'settings' && settings" class="panel">
       <div class="sec-title">AI 解签配置</div>
@@ -502,6 +608,16 @@ const logTotalPages = () => Math.max(1, Math.ceil(logTotal.value / LOG_PAGE_SIZE
             <option value="disabled">关闭思考(响应更快,推荐解签)</option>
           </select>
         </div>
+        <div class="form-row">
+          <label class="form-label" for="ai-embed">向量模型 (Embedding · 使用助手)</label>
+          <input
+            id="ai-embed"
+            v-model="aiForm.embedding_model"
+            class="input"
+            maxlength="64"
+            placeholder="留空=关键词检索,如 doubao-embedding-text-240715"
+          />
+        </div>
         <div class="form-row form-row-wide">
           <label class="form-label" for="ai-key">
             API Key
@@ -528,6 +644,21 @@ const logTotalPages = () => Math.max(1, Math.ceil(logTotal.value / LOG_PAGE_SIZE
         </div>
       </div>
       <div v-if="testResult" class="test-result" :class="{ bad: testResult.startsWith('✗') }">{{ testResult }}</div>
+
+      <div class="sec-title" style="margin-top: 26px">使用助手知识库</div>
+      <div v-if="kb" class="kb-card">
+        <div class="kb-stats">
+          <span>切片数 <b>{{ kb.chunks }}</b></span>
+          <span>已向量化 <b>{{ kb.embedded }}</b></span>
+          <span>检索方式 <b>{{ kb.embedded > 0 ? '向量' : '关键词' }}</b></span>
+          <span>上次构建 <b>{{ fmtDate(kb.last_built_at) }}</b></span>
+        </div>
+        <p class="muted" style="margin: 8px 0 12px; font-size: 12.5px; line-height: 1.8">
+          语料为 <code>docs/</code> 下的用户手册 / FAQ / 管理手册;修改文档后点「重建知识库」生效。
+          填写上方 Embedding 模型并重建后,检索自动升级为向量模式(回答更准)。
+        </p>
+        <button class="btn ghost" :disabled="busy" @click="rebuildKb">重 建 知 识 库</button>
+      </div>
     </div>
   </div>
 </template>

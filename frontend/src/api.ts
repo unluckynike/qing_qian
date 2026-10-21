@@ -61,6 +61,13 @@ export interface InterpretDone {
   message_id?: number
 }
 
+export interface AssistantDone {
+  done: true
+  mode?: string
+  sources?: { doc: string; section: string }[]
+  log_id?: number | null
+}
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   const resp = await fetch(BASE + url, init)
   if (!resp.ok) {
@@ -108,7 +115,30 @@ export async function streamInterpret(
   },
   signal?: AbortSignal,
 ): Promise<void> {
-  const resp = await fetch(BASE + '/interpret', {
+  await postSSE(
+    '/interpret',
+    payload,
+    {
+      onDelta: handlers.onDelta,
+      onDone: (d) => handlers.onDone(d as InterpretDone),
+      onError: handlers.onError,
+    },
+    signal,
+  )
+}
+
+/** 通用 SSE 消费器:`data: {...}` 帧解析(interpret 与 assistant 共用)。 */
+async function postSSE(
+  url: string,
+  payload: unknown,
+  handlers: {
+    onDelta: (text: string) => void
+    onDone: (done: unknown) => void
+    onError: (message: string) => void
+  },
+  signal?: AbortSignal,
+): Promise<void> {
+  const resp = await fetch(BASE + url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...userHeaders() },
     body: JSON.stringify(payload),
@@ -156,11 +186,33 @@ export async function streamInterpret(
           handlers.onError(evt.error)
           return
         } else if (evt.done) {
-          handlers.onDone(evt as unknown as InterpretDone)
+          handlers.onDone(evt)
         }
       }
     }
   }
+}
+
+/** 使用助手问答(SSE 流式;基于 docs/ 知识库)。 */
+export async function streamAssistant(
+  payload: { question: string; history?: ChatMessage[] },
+  handlers: {
+    onDelta: (text: string) => void
+    onDone: (done: AssistantDone) => void
+    onError: (message: string) => void
+  },
+  signal?: AbortSignal,
+): Promise<void> {
+  await postSSE(
+    '/assistant/chat',
+    payload,
+    {
+      onDelta: handlers.onDelta,
+      onDone: (d) => handlers.onDone(d as AssistantDone),
+      onError: handlers.onError,
+    },
+    signal,
+  )
 }
 
 /** 把 AI 输出按 【小节】 拆块,供流式渲染。 */
@@ -232,6 +284,15 @@ export function authMe(): Promise<{ user: AuthUser }> {
   return request('/auth/me', { headers: userHeaders() })
 }
 
+/** 助手回答赞踩反馈(1=赞 / -1=踩;可改)。 */
+export function assistantFeedback(logId: number, feedback: 1 | -1): Promise<{ ok: boolean; feedback: number }> {
+  return request('/assistant/feedback', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...userHeaders() },
+    body: JSON.stringify({ log_id: logId, feedback }),
+  })
+}
+
 /* ==================== 后台管理 ==================== */
 
 const ADMIN_TOKEN_KEY = 'qq_admin_token'
@@ -291,14 +352,34 @@ export interface LoginLogItem {
   created_at: string | null
 }
 
+export interface AssistantLogItem {
+  id: number
+  user: string
+  question: string
+  answer: string
+  mode: string
+  sources: { doc: string; section: string }[]
+  feedback: number | null
+  created_at: string | null
+}
+
 export interface AdminSettings {
   llm_api_base: string
   llm_model: string
   llm_temperature: number
   llm_max_tokens: number
   llm_thinking: string
+  embedding_model: string
   llm_api_key_set: boolean
   llm_api_key_masked: string
+}
+
+export interface KbStatus {
+  chunks: number
+  embedded: number
+  last_built_at: string | null
+  files: string[]
+  embedding_configured: boolean
 }
 
 async function adminRequest<T>(url: string, init?: RequestInit): Promise<T> {
@@ -389,4 +470,20 @@ export function adminUpdateSettings(values: Partial<Record<string, string | numb
 
 export function adminTestLLM(): Promise<{ ok: boolean; model: string; latency_ms: number; reply: string }> {
   return adminRequest('/admin/settings/test', { method: 'POST' })
+}
+
+export function adminKbStatus(): Promise<KbStatus> {
+  return adminRequest('/admin/kb/status')
+}
+
+export function adminKbRebuild(): Promise<{ mode: string; chunks: number; embedding_error: string | null }> {
+  return adminRequest('/admin/kb/rebuild', { method: 'POST' })
+}
+
+export function adminAssistantLogs(
+  limit = 50,
+  offset = 0,
+  onlyBad = false,
+): Promise<{ total: number; stats: { up: number; down: number; unrated: number }; items: AssistantLogItem[] }> {
+  return adminRequest(`/admin/assistant-logs?limit=${limit}&offset=${offset}&only_bad=${onlyBad}`)
 }

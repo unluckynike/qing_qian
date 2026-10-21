@@ -18,6 +18,8 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column
 
+from pgvector.sqlalchemy import Vector
+
 from .db import Base
 
 
@@ -149,6 +151,52 @@ class LoginLog(Base):
     reason: Mapped[str | None] = mapped_column(String(64), comment="失败原因(成功时为空)")
     ip: Mapped[str | None] = mapped_column(String(64), comment="来源 IP(取 X-Forwarded-For 首个,否则直连地址)")
     user_agent: Mapped[str | None] = mapped_column(String(256), comment="User-Agent(截断 256)")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, comment="发生时间"
+    )
+
+
+class DocChunk(Base):
+    """知识库文档切片(使用助手 RAG 检索;由 docs/ 目录构建)。
+
+    未配置 embedding 模型时 embedding 为空,检索走关键词评分;
+    配置后重建则写入向量,检索走 pgvector 余弦距离。
+    """
+
+    __tablename__ = "doc_chunks"
+    __table_args__ = {"comment": "知识库文档切片(使用助手 RAG 检索;由 docs/ 构建)"}
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment="主键")
+    doc_path: Mapped[str] = mapped_column(String(128), nullable=False, comment="来源文件(如 docs/faq.md)")
+    section: Mapped[str] = mapped_column(String(160), nullable=False, comment="小节标题(## 级)")
+    content: Mapped[str] = mapped_column(Text, nullable=False, comment="切片正文(含标题)")
+    embedding: Mapped[list[float] | None] = mapped_column(Vector(), comment="向量(未配置 embedding 模型时为空)")
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), comment="最后构建时间"
+    )
+
+
+class AssistantLog(Base):
+    """使用助手问答记录与赞踩反馈(评估问答质量、驱动知识库迭代)。"""
+
+    __tablename__ = "assistant_logs"
+    __table_args__ = (
+        CheckConstraint("feedback IN (-1, 1)", name="ck_assistant_logs_feedback", comment="评价仅限 1(赞)/-1(踩)"),
+        {"comment": "使用助手问答记录(含赞踩反馈,驱动知识库迭代)"},
+    )
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, comment="主键")
+    user_id: Mapped[int | None] = mapped_column(
+        BigInteger, ForeignKey("users.id", ondelete="SET NULL"), comment="提问用户;游客为空"
+    )
+    question: Mapped[str] = mapped_column(Text, nullable=False, comment="用户问题")
+    answer: Mapped[str] = mapped_column(Text, nullable=False, comment="助手回答全文")
+    mode: Mapped[str] = mapped_column(String(16), nullable=False, comment="检索方式:vector=向量 / keyword=关键词")
+    sources: Mapped[str | None] = mapped_column(Text, comment="参考来源(JSON 文本)")
+    feedback: Mapped[int | None] = mapped_column(
+        SmallInteger, comment="评价:1=赞 / -1=踩 / NULL=未评"
+    )
+    feedback_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), comment="评价时间")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), index=True, comment="发生时间"
     )

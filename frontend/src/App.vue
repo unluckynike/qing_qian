@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import AssistantWidget from './components/AssistantWidget.vue'
 import { auth, logoutAll, refreshMe } from './store/auth'
 
 const route = useRoute()
@@ -64,4 +65,6 @@ function logout() {
       青签 · 吕祖灵签一百签
     </div>
   </footer>
+
+  <AssistantWidget />
 </template>

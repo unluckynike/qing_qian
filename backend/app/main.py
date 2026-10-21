@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from . import orm  # noqa: F401  确保 ORM 表定义被注册
 from .config import settings
 from .db import Base, engine
-from .routers import admin, auth, divination, signs
+from .routers import admin, assistant, auth, divination, signs
 from .services import llm
 from .services.signstore import store
 
@@ -45,6 +45,7 @@ app.add_middleware(
 app.include_router(signs.router, prefix="/api")
 app.include_router(divination.router, prefix="/api")
 app.include_router(auth.router, prefix="/api")
+app.include_router(assistant.router, prefix="/api")
 app.include_router(admin.router, prefix="/api")
 
 

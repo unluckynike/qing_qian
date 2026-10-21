@@ -9,6 +9,7 @@ import {
   type ChatMessage,
   type SignDetail,
 } from '../api'
+import { renderRichText } from '../utils/richtext'
 
 const route = useRoute()
 const router = useRouter()
@@ -300,7 +301,7 @@ async function sendFollowup() {
           <div class="ai-blocks">
             <div v-for="(b, i) in aiBlocks" :key="i" class="ai-block">
               <div v-if="b.title" class="ai-block-title">{{ b.title }}</div>
-              <div class="ai-block-body">{{ b.body }}</div>
+              <div class="ai-block-body" v-html="renderRichText(b.body)"></div>
             </div>
             <span v-if="aiState === 'streaming'" class="ai-caret">▍</span>
           </div>
@@ -308,7 +309,7 @@ async function sendFollowup() {
           <div v-if="thread.length > 1" class="followup-thread">
             <div v-for="(m, i) in thread.slice(1)" :key="i" class="msg" :class="m.role">
               <div class="msg-label">{{ m.role === 'user' ? '问' : '答' }}</div>
-              <div class="msg-content">{{ m.content }}</div>
+              <div class="msg-content" v-html="renderRichText(m.content)"></div>
             </div>
           </div>
         </div>

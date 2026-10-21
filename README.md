@@ -21,6 +21,7 @@
 ```
 qing_qian/
 ├── DESIGN.md                    # 设计蓝图(架构/数据/API/AI 全案)
+├── docs/                        # 产品文档库:用户手册/FAQ/管理手册(将作为站内使用助手知识库)
 ├── docker-compose.yml           # PostgreSQL 16
 ├── backend/
 │   ├── app/                     # FastAPI 应用(routers/services/orm)
@@ -37,7 +38,7 @@ qing_qian/
 **1. 起数据库**
 
 ```bash
-docker compose up -d db        # postgres:16-alpine → localhost:5432
+docker compose up -d db        # pgvector/pgvector:pg16(含向量扩展)→ localhost:5432
 ```
 
 **2. 起后端**(Python 3.10)
@@ -83,12 +84,16 @@ npm run dev                    # http://localhost:5173(vite 代理 /api → 8000
 | POST | `/api/draw` | 安全随机抽签 → `{drawing_id, sign}` |
 | POST | `/api/interpret` | AI 解签,SSE 流式;支持追问(带 `reading_id` + `history`) |
 | GET | `/api/history` | 当前用户的抽签与解签记录(**需登录**,仅本人可见) |
+| POST | `/api/assistant/chat` | **使用助手**问答(SSE 流式;基于 `docs/` 知识库,独立于解签助手) |
+| POST | `/api/assistant/feedback` | 助手回答赞踩(1=赞 / -1=踩) |
 | POST | `/api/auth/register` | 用户注册(用户名+密码 → 令牌) |
 | POST | `/api/auth/login` | **统一登录入口**(管理员/普通用户自动识别,返回 `role`) |
 | GET | `/api/auth/me` | 当前用户信息 |
 | POST | `/api/admin/users/{id}/reset-password` | 重置用户密码 |
 | PATCH | `/api/admin/users/{id}/status` | 禁用 / 启用用户 |
 | GET | `/api/admin/login-logs` | 登录/注册事件日志(含失败原因与 IP) |
+| GET/POST | `/api/admin/kb/status` · `/api/admin/kb/rebuild` | 使用助手知识库状态 / 重建 |
+| GET | `/api/admin/assistant-logs` | 助手问答记录与赞踩统计(可只看踩) |
 | POST | `/api/admin/login` | 后台登录(换取令牌) |
 | GET/PUT/POST/DELETE | `/api/admin/*` | 后台管理:概览 / 签文记录 / 用户 / AI 配置(需 Bearer 令牌) |
 
@@ -120,6 +125,15 @@ AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(�
 - 抽签、解签、签事记请求自动携带令牌;未登录访客的签事记会引导至登录页(登录后回跳);
 - 登录/注册事件(含失败尝试)写入登录日志表,管理员可在后台查看;账号被禁用后令牌立即失效;
 - 手机号短信验证码为后续可选项(需短信服务商,演进路径见项目本地架构文档);当前版本为无短信的账号密码方案。
+
+## 使用助手(站内智能问答)
+
+网站右下角悬浮「使用助手」,基于 `docs/` 产品文档回答使用问题(SSE 流式,与解签助手完全分离)。
+
+- **语料**:`docs/user-guide.md`、`docs/faq.md`、`docs/admin-guide.md`;改文档后到「后台 → AI 配置 → 重建知识库」生效;
+- **问答记录与赞踩**:每次问答落库(`assistant_logs`),用户可对回答 👍/👎;后台「助手问答」页支持"只看踩"复盘,形成"文档 → 回答 → 反馈 → 改文档"的迭代闭环;
+- **检索**:默认关键词(BM25 风格,适合小型语料);开通 Embedding 模型(如方舟 `doubao-embedding-text-240715`)并在后台填入「向量模型」后重建,自动升级为 **pgvector 向量检索**;
+- 数据库镜像已升级为 `pgvector/pgvector:pg16`(含向量扩展,数据卷兼容)。
 
 SSE 事件:`data: {"delta": "…"}` 逐段 → `data: {"done": true, "reading_id": …}` → `data: [DONE]`。
 解签落库:首答写 `readings`,追问写 `messages`(每次调用记录 `model` 与 `prompt_version`)。

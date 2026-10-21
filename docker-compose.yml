@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:16-alpine
+    # pgvector/pgvector:pg16 = 官方 postgres:16 镜像 + 预装 pgvector 向量扩展(数据卷兼容)
+    image: pgvector/pgvector:pg16
     container_name: qingqian-db
     environment:
       POSTGRES_DB: qingqian

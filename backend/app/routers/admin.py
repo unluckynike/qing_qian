@@ -3,6 +3,7 @@
 鉴权见 services/admin_auth(单管理员账号 + HMAC 签名令牌,与普通用户体系独立)。
 登录走统一入口 POST /api/auth/login(自动识别账号类型)。
 """
+import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,8 +11,8 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, or_, select
 
 from ..db import SessionLocal, db_ready
-from ..orm import Drawing, LoginLog, Message, Reading, User
-from ..services import llm
+from ..orm import AssistantLog, Drawing, LoginLog, Message, Reading, User
+from ..services import knowledge, llm
 from ..services.admin_auth import check_credentials, create_admin_token, require_admin
 from ..services.ai_config import get_ai_config, mask_key, set_ai_config
 from ..services.signstore import store
@@ -39,6 +40,7 @@ class SettingsBody(BaseModel):
     llm_temperature: float | None = Field(default=None, ge=0, le=2)
     llm_max_tokens: int | None = Field(default=None, ge=16, le=8192)
     llm_thinking: str | None = Field(default=None, max_length=16, description='""=默认,"disabled"=关闭思考')
+    embedding_model: str | None = Field(default=None, max_length=64, description="向量模型(留空=关键词检索)")
 
 
 class ResetPasswordBody(BaseModel):
@@ -235,6 +237,48 @@ def list_login_logs(limit: int = 50, offset: int = 0, only_failed: bool = False)
     return {"total": total, "items": items}
 
 
+# ---------- 助手问答 ----------
+@router.get("/assistant-logs", dependencies=[Depends(require_admin)])
+def list_assistant_logs(limit: int = 50, offset: int = 0, only_bad: bool = False) -> dict:
+    """使用助手问答记录与赞踩(倒序分页;only_bad 只看踩;stats 为全量口径)。"""
+    _need_db()
+    limit = max(1, min(limit, 200))
+    offset = max(0, offset)
+    with SessionLocal() as db:
+        stats = {
+            "up": db.scalar(select(func.count()).select_from(AssistantLog).where(AssistantLog.feedback == 1)) or 0,
+            "down": db.scalar(select(func.count()).select_from(AssistantLog).where(AssistantLog.feedback == -1)) or 0,
+            "unrated": db.scalar(
+                select(func.count()).select_from(AssistantLog).where(AssistantLog.feedback.is_(None))
+            ) or 0,
+        }
+        stmt = select(AssistantLog)
+        if only_bad:
+            stmt = stmt.where(AssistantLog.feedback == -1)
+        total = db.scalar(select(func.count()).select_from(stmt.subquery())) or 0
+        rows = db.scalars(stmt.order_by(AssistantLog.id.desc()).limit(limit).offset(offset)).all()
+        items = []
+        for r in rows:
+            user_label = "游客"
+            if r.user_id:
+                u = db.get(User, r.user_id)
+                if u:
+                    user_label = u.nickname or u.username or f"#{r.user_id}"
+            items.append(
+                {
+                    "id": r.id,
+                    "user": user_label,
+                    "question": r.question,
+                    "answer": r.answer,
+                    "mode": r.mode,
+                    "sources": json.loads(r.sources) if r.sources else [],
+                    "feedback": r.feedback,
+                    "created_at": r.created_at.isoformat() if r.created_at else None,
+                }
+            )
+    return {"total": total, "stats": stats, "items": items}
+
+
 # ---------- AI 配置 ----------
 @router.get("/settings", dependencies=[Depends(require_admin)])
 def read_settings() -> dict:
@@ -246,6 +290,7 @@ def read_settings() -> dict:
         "llm_temperature": cfg["llm_temperature"],
         "llm_max_tokens": cfg["llm_max_tokens"],
         "llm_thinking": cfg.get("llm_thinking", ""),
+        "embedding_model": cfg.get("embedding_model", ""),
         "llm_api_key_set": bool(key),
         "llm_api_key_masked": mask_key(key),
     }
@@ -272,3 +317,22 @@ def test_settings() -> dict:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:  # noqa: BLE001 上游模型服务报错原样透出(不含密钥)
         raise HTTPException(status_code=400, detail=f"连接测试失败:{exc}") from exc
+
+
+# ---------- 使用助手知识库 ----------
+@router.get("/kb/status", dependencies=[Depends(require_admin)])
+def kb_status() -> dict:
+    _need_db()
+    return knowledge.status()
+
+
+@router.post("/kb/rebuild", dependencies=[Depends(require_admin)])
+def kb_rebuild() -> dict:
+    """重建知识库:重读 docs/ 切片;配置了 embedding 模型则向量化(失败自动降级关键词)。"""
+    _need_db()
+    try:
+        result = knowledge.rebuild()
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    logger.info("知识库重建完成: %s", result)
+    return result
