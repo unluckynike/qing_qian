@@ -26,7 +26,7 @@ router = APIRouter(prefix="/assistant", tags=["assistant"])
 STOP_WORDS = ["忽略", "指令", "命令", "无视", "ignore", "instruction", "command", "重新开始", "扮演"]
 SSE_HEADERS = {"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
 
-SYSTEM_TEMPLATE = """你是「青签」网站的**使用助手**,负责回答用户关于本站功能与使用方法的问题。
+SYSTEM_TEMPLATE = """你是「青小签」——青签网站的**使用助手**。你负责回答用户关于本站功能与使用方法的问题。
 
 铁律:
 1. 只依据下方「知识库资料」回答;资料里没有的信息,不要猜测、不要编造功能;
