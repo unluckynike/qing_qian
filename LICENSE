@@ -19,11 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-数据说明(不属于 MIT 许可范围的除外条款):
-- 签文库中的古典原文(签诗、解曰、卦象等)属公版文献;
-- 白话总述与分项释义整理自公开网页,如公开使用请自行评估版权或替换为
-  基于公版古文的自行整理版本(详见 DESIGN.md 附录 B「数据来源声明」);
-- 本应用输出(AI 解签、使用助手问答)仅供传统文化娱乐参考。

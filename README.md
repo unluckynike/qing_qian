@@ -173,4 +173,4 @@ cd frontend && npm run build     # 产出 frontend/dist,自动挂载到 FastAPI 
 ## License
 
 - **代码**:MIT(见 [LICENSE](LICENSE))
-- **数据**:签诗/解曰/卦象等古典原文属公版;白话总述与分项释义整理自公开网页,公开使用请自行评估或替换(详见 [DESIGN.md](DESIGN.md) 附录 B「数据来源声明」)
+- **数据与内容**:见 [NOTICE](NOTICE);白话释义整理自公开网页,公开使用请自行评估或替换(详见 [DESIGN.md](DESIGN.md) 附录 B「数据来源声明」)
