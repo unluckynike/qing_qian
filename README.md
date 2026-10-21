@@ -21,7 +21,6 @@
 ```
 qing_qian/
 ├── DESIGN.md                    # 设计蓝图(架构/数据/API/AI 全案)
-├── ARCHITECTURE.md              # 系统架构设计与评估(含响应式规范)
 ├── docker-compose.yml           # PostgreSQL 16
 ├── backend/
 │   ├── app/                     # FastAPI 应用(routers/services/orm)
@@ -120,7 +119,7 @@ AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(�
 - 注册即开通:用户名(3-32 位字母/数字/下划线)+ 密码(≥6 位);密码以 **PBKDF2-SHA256 加盐**存储,会话为 HMAC 签名令牌(默认 7 天,`USER_SECRET` 签名);
 - 抽签、解签、签事记请求自动携带令牌;未登录访客的签事记会引导至登录页(登录后回跳);
 - 登录/注册事件(含失败尝试)写入登录日志表,管理员可在后台查看;账号被禁用后令牌立即失效;
-- 手机号短信验证码为后续可选项(需短信服务商,见 [ARCHITECTURE.md](ARCHITECTURE.md) 演进路径);当前版本为无短信的账号密码方案。
+- 手机号短信验证码为后续可选项(需短信服务商,演进路径见项目本地架构文档);当前版本为无短信的账号密码方案。
 
 SSE 事件:`data: {"delta": "…"}` 逐段 → `data: {"done": true, "reading_id": …}` → `data: [DONE]`。
 解签落库:首答写 `readings`,追问写 `messages`(每次调用记录 `model` 与 `prompt_version`)。
