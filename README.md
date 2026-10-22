@@ -21,7 +21,7 @@
 ```
 qing_qian/
 ├── DESIGN.md                    # 设计蓝图(架构/数据/API/AI 全案)
-├── docs/                        # 产品文档库:用户手册/FAQ/管理手册(将作为站内使用助手知识库)
+├── docs/                        # 产品文档库:用户手册/FAQ/文化背景/管理手册(站内使用助手知识库)
 ├── docker-compose.yml           # PostgreSQL 16
 ├── backend/
 │   ├── app/                     # FastAPI 应用(routers/services/orm)
@@ -128,9 +128,9 @@ AI 配置存于数据库 `settings` 表,**优先于 .env**;清空对应配置(�
 
 ## 使用助手(青小签)
 
-网站右下角悬浮「**青小签**」——一位笑脸小道童形象的使用助手,基于 `docs/` 产品文档回答使用问题(SSE 流式,与解签助手完全分离;首次访问有一次性引导气泡)。
+网站右下角悬浮「**青小签**」——一位笑脸小道童形象的使用助手,基于 `docs/` 产品文档回答使用问题与文化背景问题(吕祖其人、求签礼俗等;SSE 流式,与解签助手完全分离;首次访问有一次性引导气泡)。
 
-- **语料**:`docs/user-guide.md`、`docs/faq.md`、`docs/admin-guide.md`;改文档后到「后台 → AI 配置 → 重建知识库」生效;
+- **语料**:`docs/user-guide.md`、`docs/faq.md`、`docs/lvzu.md`(吕祖与吕祖灵签文化背景)、`docs/admin-guide.md`;改文档后到「后台 → AI 配置 → 重建知识库」生效;
 - **问答记录与赞踩**:每次问答落库(`assistant_logs`),用户可对回答 👍/👎;后台「助手问答」页支持"只看踩"复盘,形成"文档 → 回答 → 反馈 → 改文档"的迭代闭环;
 - **检索**:默认关键词(BM25 风格,适合小型语料);开通 Embedding 模型(如方舟 `doubao-embedding-text-240715`)并在后台填入「向量模型」后重建,自动升级为 **pgvector 向量检索**;
 - 数据库镜像已升级为 `pgvector/pgvector:pg16`(含向量扩展,数据卷兼容)。

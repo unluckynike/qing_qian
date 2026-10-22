@@ -5,7 +5,7 @@
 - **关键词模式**:否则用 CJK 二元组 + BM25 风格评分(对小型 FAQ 语料效果足够),
   embedding 模型就绪后在后台"重建知识库"即可自动升级为向量检索。
 
-语料范围:docs/user-guide.md、docs/faq.md、docs/admin-guide.md
+语料范围:docs/user-guide.md、docs/faq.md、docs/lvzu.md、docs/admin-guide.md
 (索引说明 docs/README.md 属维护文档,不参与检索)。
 """
 import math
@@ -22,7 +22,7 @@ from ..orm import DocChunk
 from .embedding import EmbeddingUnavailable, embed_texts, is_configured as embedding_configured
 
 DOCS_DIR = BACKEND_DIR.parent / "docs"
-KB_FILES = ("user-guide.md", "faq.md", "admin-guide.md")
+KB_FILES = ("user-guide.md", "faq.md", "lvzu.md", "admin-guide.md")
 EMBED_BATCH = 8
 
 

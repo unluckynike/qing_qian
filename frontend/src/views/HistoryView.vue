@@ -52,17 +52,17 @@ function open(item: HistoryItem) {
     </div>
 
     <div v-else class="panel reveal d2" style="padding-top: 8px; padding-bottom: 8px">
-      <div v-for="it in items" :key="it.drawing_id" class="hist-item" @click="open(it)">
-        <div class="hist-date">{{ fmt(it.created_at) }}</div>
-        <div style="flex: 1; min-width: 0">
-          <div class="hist-title">{{ it.title }}</div>
-          <div class="hist-meta">
+      <button v-for="it in items" :key="it.drawing_id" type="button" class="hist-item" @click="open(it)">
+        <span class="hist-date">{{ fmt(it.created_at) }}</span>
+        <span style="flex: 1; min-width: 0">
+          <span class="hist-title">{{ it.title }}</span>
+          <span class="hist-meta">
             <span v-if="it.category" class="chip-sm">{{ it.category }}</span>
             <span v-if="it.question">「{{ it.question }}」</span>
-          </div>
-          <div v-if="it.excerpt" class="hist-excerpt">{{ it.excerpt }}…</div>
-        </div>
-      </div>
+          </span>
+          <span v-if="it.excerpt" class="hist-excerpt">{{ it.excerpt }}…</span>
+        </span>
+      </button>
     </div>
   </div>
 </template>

@@ -544,7 +544,14 @@ const alTotalPages = () => Math.max(1, Math.ceil(alTotal.value / LOG_PAGE_SIZE))
           </thead>
           <tbody>
             <template v-for="l in alogs" :key="l.id">
-              <tr class="clickable" @click="alExpanded = alExpanded === l.id ? null : l.id">
+              <tr
+                class="clickable"
+                tabindex="0"
+                :aria-expanded="alExpanded === l.id"
+                @click="alExpanded = alExpanded === l.id ? null : l.id"
+                @keydown.enter.prevent="alExpanded = alExpanded === l.id ? null : l.id"
+                @keydown.space.prevent="alExpanded = alExpanded === l.id ? null : l.id"
+              >
                 <td class="nowrap">{{ fmtDate(l.created_at) }}</td>
                 <td class="nowrap">{{ l.user }}</td>
                 <td class="cell-question">{{ l.question }}</td>

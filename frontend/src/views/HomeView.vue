@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { gsap } from 'gsap'
 import { drawSign } from '../api'
@@ -10,6 +10,28 @@ const category = ref('')
 const rolling = ref(false)
 const error = ref('')
 const categories = ['事业', '姻缘', '财运', '健康', '其他']
+
+// 示例问题:选中分类后联动输入框示例,未选时轮播。
+// 示例纪律(见 docs):一事一签、单一主题、带时间范围、口语化。
+const CATEGORY_EXAMPLES: Record<string, string> = {
+  事业: '例:今年该不该换工作?',
+  姻缘: '例:我和 TA 的缘分如何?',
+  财运: '例:今年下半年的财运走势如何?',
+  健康: '例:我今年的身体要注意些什么?',
+  其他: '例:这件事接下来会如何发展?',
+}
+const GENERAL_EXAMPLES = [
+  '例:今年下半年的财运如何?',
+  '例:这份工作要不要接?',
+  '例:我和 TA 的缘分如何?',
+]
+const exampleIdx = ref(0)
+let exampleTimer: number | undefined
+
+const questionPlaceholder = computed(() => {
+  if (category.value) return CATEGORY_EXAMPLES[category.value] ?? GENERAL_EXAMPLES[0]
+  return GENERAL_EXAMPLES[exampleIdx.value % GENERAL_EXAMPLES.length]
+})
 
 const pageEl = ref<HTMLElement | null>(null)
 const stageEl = ref<HTMLElement | null>(null)
@@ -34,7 +56,91 @@ function ensureVisible() {
   })
 }
 
+/* ---------- 摇签仪式:慢起 → 转急 → 停顿 → 落签 ----------
+ *  仪式总时长每次随机(2.2–3.6s),但抽签结果早已由服务端定下——
+ *  时长只影响观感,不影响随机性。转场由 startDraw 的定时器推进,
+ *  动画被节流也不阻塞落签。 */
+const RITUAL_MIN = 2.2
+const RITUAL_MAX = 3.6
+
+let ritualTl: gsap.core.Timeline | undefined
+let tubeTween: gsap.core.Tween | undefined
+let stickTween: gsap.core.Tween | undefined
+
+function clearRitual() {
+  ritualTl?.kill()
+  tubeTween?.kill()
+  stickTween?.kill()
+  ritualTl = tubeTween = stickTween = undefined
+}
+
+/** 复位签筒:清掉摇签留下的内联样式(落签签回到隐藏态)。 */
+function resetStage() {
+  clearRitual()
+  if (!stageEl.value) return
+  gsap.set(stageEl.value.querySelectorAll('.tube, .stick, .drawn-stick'), {
+    clearProps: 'transform,opacity',
+  })
+}
+
+function playRitual(total: number) {
+  if (!stageEl.value) return
+  const tube = stageEl.value.querySelector('.tube')
+  const sticks = stageEl.value.querySelectorAll('.stick')
+  const drawn = stageEl.value.querySelector('.drawn-stick')
+  if (!tube || !drawn) return
+
+  gsap.set(tube, { rotation: 0 })
+  gsap.set(sticks, { y: 0 })
+  gsap.set(drawn, { opacity: 0, y: 60 })
+
+  if (reducedMotion()) {
+    // 不做摇动,短暂停顿后直接亮出落签结果
+    ritualTl = gsap.timeline()
+    ritualTl.set(drawn, { opacity: 1, y: -46 }, 0.25)
+    return
+  }
+
+  const emergeAt = Math.max(1.2, total - 0.85) // 落签前留 0.85s 展示
+  const slowSpan = emergeAt * 0.45
+  const fastSpan = emergeAt * 0.38
+  const pauseAt = slowSpan + fastSpan
+
+  const shake = (amp: number, speed: number, jitter: number) => () => {
+    tubeTween?.kill()
+    stickTween?.kill()
+    tubeTween = gsap.fromTo(
+      tube,
+      { rotation: -amp },
+      { rotation: amp, duration: speed, yoyo: true, repeat: -1, ease: 'sine.inOut' },
+    )
+    stickTween = gsap.fromTo(
+      sticks,
+      { y: 0 },
+      {
+        y: -jitter, duration: speed * 0.8, yoyo: true, repeat: -1,
+        ease: 'sine.inOut', stagger: { each: 0.035, from: 'center' },
+      },
+    )
+  }
+
+  const tl = gsap.timeline()
+  tl.call(shake(2.2, 0.26, 3.5), [], 0) // 慢起:小幅轻摇
+  tl.call(shake(5, 0.15, 8), [], slowSpan) // 转急:幅度与签条跳动加大
+  tl.call(() => {
+    tubeTween?.kill()
+    stickTween?.kill()
+  }, [], pauseAt)
+  tl.to(tube, { rotation: 0, duration: 0.26, ease: 'sine.out' }, pauseAt + 0.02) // 停顿回正
+  tl.to(sticks, { y: 0, duration: 0.22, ease: 'sine.out' }, pauseAt + 0.02)
+  tl.to(drawn, { opacity: 1, y: -46, duration: 0.72, ease: 'power2.out' }, emergeAt) // 落签
+  ritualTl = tl
+}
+
 onMounted(() => {
+  exampleTimer = window.setInterval(() => {
+    exampleIdx.value = (exampleIdx.value + 1) % GENERAL_EXAMPLES.length
+  }, 5000)
   if (!pageEl.value || reducedMotion()) return
   ctx = gsap.context(() => {
     // 入场时间线:标题落定 → 签筒登场 → 步骤/表单/快捷入口错峰浮现
@@ -54,6 +160,8 @@ onMounted(() => {
 })
 onUnmounted(() => {
   window.clearTimeout(watchdog)
+  window.clearInterval(exampleTimer)
+  clearRitual()
   ctx?.revert()
 })
 
@@ -61,14 +169,17 @@ async function startDraw() {
   if (rolling.value) return
   error.value = ''
   rolling.value = true
+  resetStage()
+  const total = reducedMotion() ? 0.9 : RITUAL_MIN + Math.random() * (RITUAL_MAX - RITUAL_MIN)
   const started = Date.now()
+  playRitual(total)
   try {
     const result = await drawSign({
       category: category.value || undefined,
       question: question.value.trim() || undefined,
     })
-    // 摇签动画至少播满 2 秒再接结果
-    const remain = Math.max(200, 2000 - (Date.now() - started))
+    // 仪式(含落签展示)走完再转场;若请求慢于动画,拿到结果后尽快转场
+    const remain = Math.max(150, total * 1000 - (Date.now() - started))
     window.setTimeout(() => {
       const query: Record<string, string> = { fresh: '1' }
       if (result.drawing_id) query.drawing_id = String(result.drawing_id)
@@ -77,6 +188,7 @@ async function startDraw() {
       router.push({ path: `/sign/${result.sign.no}`, query })
     }, remain)
   } catch (e) {
+    resetStage()
     rolling.value = false
     error.value = e instanceof Error ? e.message : String(e)
   }
@@ -94,10 +206,10 @@ async function startDraw() {
 
     <!-- 求签仪式区:签筒为主角,默念/摇签/落签一气呵成 -->
     <section class="ritual">
-      <div ref="stageEl" class="draw-stage" :class="{ rolling }">
+      <div ref="stageEl" class="draw-stage">
         <div class="tube">
           <div class="tube-sticks">
-            <i v-for="n in 7" :key="n" class="stick" :style="{ '--i': n }"></i>
+            <i v-for="n in 7" :key="n" class="stick"></i>
           </div>
           <div class="tube-body">
             <span class="tube-title">吕祖灵签</span>
@@ -124,22 +236,25 @@ async function startDraw() {
           v-model="question"
           class="input"
           maxlength="100"
-          placeholder="所问之事(选填,默念亦可)……"
+          :placeholder="questionPlaceholder"
           :disabled="rolling"
         />
         <div class="chips center-chips">
-          <span
+          <button
             v-for="c in categories"
             :key="c"
+            type="button"
             class="chip"
             :class="{ active: category === c }"
+            :aria-pressed="category === c"
             @click="category = category === c ? '' : c"
-          >{{ c }}</span>
+          >{{ c }}</button>
         </div>
         <button class="btn btn-draw" :disabled="rolling" @click="startDraw">
           {{ rolling ? '摇 签 中' : '摇 签' }}
         </button>
-        <div class="field-hint" style="justify-content: center">
+        <div class="field-hint hint-line">
+          <span>所问之事 · 选填,默念亦可</span>
           <span>{{ question.length }}/100</span>
         </div>
       </div>
@@ -209,7 +324,7 @@ async function startDraw() {
   width: 20px; height: 20px; flex: none;
   border: 1px solid var(--gold-2); border-radius: 50%;
   display: grid; place-items: center;
-  font-family: var(--font-song); font-size: 11.5px; color: var(--gold);
+  font-family: var(--font-song); font-size: 11.5px; color: var(--gold-ink);
 }
 .step-sep { width: 26px; height: 1px; background: var(--line-2); }
 
@@ -217,6 +332,7 @@ async function startDraw() {
 
 .ritual-form { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .ritual-form .input { max-width: 460px; text-align: center; }
+.hint-line { width: 100%; max-width: 460px; }
 .center-chips { justify-content: center; }
 .btn-draw { width: min(260px, 100%); padding: 14px 0; font-size: 17px; }
 
@@ -235,7 +351,7 @@ async function startDraw() {
 .quick-arrow {
   position: absolute; right: 16px; top: 50%;
   transform: translateY(-50%);
-  color: var(--gold); font-size: 17px;
+  color: var(--gold-ink); font-size: 17px;
   transition: transform 0.18s;
 }
 .quick-card:hover .quick-arrow { transform: translateY(-50%) translateX(3px); }

@@ -46,14 +46,14 @@ function luckyClassOf(lucky: string): string {
     <div v-else-if="loading" class="center muted" style="padding: 50px 0">签文库加载中……</div>
 
     <div v-else class="lib-grid" style="margin-top: 22px">
-      <div v-for="s in filtered" :key="s.no" class="lib-card" @click="router.push(`/sign/${s.no}`)">
-        <div class="lib-no">
+      <button v-for="s in filtered" :key="s.no" type="button" class="lib-card" @click="router.push(`/sign/${s.no}`)">
+        <span class="lib-no">
           第 {{ s.no }} 签
           <span v-if="s.lucky" class="lucky-badge sm" :class="luckyClassOf(s.lucky)">{{ s.lucky }}</span>
-        </div>
-        <div class="lib-title">{{ s.ancient }}</div>
-        <div class="lib-ancient">{{ s.title }}</div>
-      </div>
+        </span>
+        <span class="lib-title">{{ s.ancient }}</span>
+        <span class="lib-ancient">{{ s.title }}</span>
+      </button>
     </div>
 
     <p v-if="!loading && !error" class="center muted" style="margin-top: 22px">

@@ -27,7 +27,7 @@ const sending = ref(false)
 const bubbles = ref<Bubble[]>([])
 const scrollEl = ref<HTMLElement | null>(null)
 
-const suggestions = ['怎么求签?', 'AI 解签收费吗?', '为什么有些签没有卦象?', '忘记密码怎么办?']
+const suggestions = ['怎么求签?', '求签有什么讲究?', 'AI 解签收费吗?', '忘记密码怎么办?']
 
 onMounted(() => {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -171,13 +171,13 @@ async function vote(b: Bubble, v: 1 | -1) {
             </svg>
           </span>
           <span class="assistant-title">青小签</span>
-          <span class="assistant-sub">使用助手 · 基于产品手册</span>
+          <span class="assistant-sub">使用助手 · 基于站内文档</span>
           <button class="assistant-close" aria-label="关闭" @click="open = false">×</button>
         </header>
 
         <div ref="scrollEl" class="assistant-body">
           <div v-if="!bubbles.length" class="assistant-welcome">
-            <p style="margin: 0 0 10px">你好,我是青小签——青签的使用助手。使用上的问题都可以问我:</p>
+            <p style="margin: 0 0 10px">你好,我是青小签——青签的使用助手。使用上的问题,或想了解吕祖与吕祖灵签的文化背景,都可以问我:</p>
             <div class="assistant-sugs">
               <button v-for="s in suggestions" :key="s" class="chip" @click="send(s)">{{ s }}</button>
             </div>
@@ -216,7 +216,7 @@ async function vote(b: Bubble, v: 1 | -1) {
           />
           <button class="btn small" :disabled="sending" @click="send()">发送</button>
         </div>
-        <div class="assistant-foot">回答由 AI 基于产品手册生成,仅供参考</div>
+        <div class="assistant-foot">回答由 AI 基于站内文档生成,仅供参考</div>
       </section>
     </transition>
 
@@ -251,7 +251,7 @@ async function vote(b: Bubble, v: 1 | -1) {
 .assistant-fab {
   display: flex; align-items: center; gap: 9px;
   padding: 7px 16px 7px 8px;
-  border: 1px solid var(--line-2); border-radius: 999px;
+  border: 1px solid var(--line-3); border-radius: 999px;
   background: linear-gradient(180deg, #fdf8ec, var(--paper-2));
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(74, 50, 22, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.7);
@@ -351,7 +351,7 @@ async function vote(b: Bubble, v: 1 | -1) {
 .vote-row { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
 .vote-btn {
   appearance: none; cursor: pointer;
-  border: 1px solid var(--line-2); background: var(--paper-2);
+  border: 1px solid var(--line-3); background: var(--paper-2);
   border-radius: 8px; padding: 1px 9px; font-size: 13px; line-height: 1.7;
   opacity: 0.72; transition: all 0.15s;
 }
